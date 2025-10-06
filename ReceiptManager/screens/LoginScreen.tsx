@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, TouchableOpacity, StyleSheet } from 'react-native';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [hidePassword, setHidePassword] = useState(true);
 
   const handleLogin = () => {
     console.log('Logging in with:', email, password);
@@ -12,8 +13,9 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-    <Text style={styles.appName}>Receipt + Warranty Manager</Text>
+      <Text style={styles.appName}>Receipt + Warranty Manager</Text>
       <Text style={styles.title}>Login</Text>
+
       <TextInput
         style={styles.input}
         placeholder="Please enter a valid email"
@@ -21,13 +23,23 @@ export default function LoginScreen() {
         onChangeText={setEmail}
         autoCapitalize="none"
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Enter password here"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Please enter a password"
+          secureTextEntry={hidePassword}
+          value={password}
+          onChangeText={setPassword}
+        />
+        <TouchableOpacity
+          onPress={() => setHidePassword(!hidePassword)}
+          style={styles.showHideButton}
+        >
+          <Text>{hidePassword ? 'Show' : 'Hide'}</Text>
+        </TouchableOpacity>
+      </View>
+
       <Button title="Login" onPress={handleLogin} />
     </View>
   );
@@ -50,6 +62,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    alignSelf: 'center',
   },
   input: {
     borderWidth: 1,
@@ -57,5 +70,20 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     marginBottom: 12,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 10,
+  },
+  showHideButton: {
+    paddingHorizontal: 10,
   },
 });
