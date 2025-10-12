@@ -13,20 +13,27 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <Text style={styles.title}>Register For an Account</Text>
 
       <TextInput
         style={styles.input}
-        placeholder="Please enter a valid email"
+        placeholder="Enter your email"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
       />
 
+    <TextInput
+        style={styles.input}
+        placeholder="Enter your password"
+        value={password}
+        onChangeText={setPassword}
+      />
+
       <View style={styles.passwordContainer}>
         <TextInput
           style={styles.passwordInput}
-          placeholder="Please enter a password"
+          placeholder="Re-Enter your password"
           secureTextEntry={hidePassword}
           value={password}
           onChangeText={setPassword}
@@ -39,7 +46,7 @@ export default function LoginScreen() {
         </TouchableOpacity>
       </View>
 
-      <Button title="Enter" onPress={handleLogin} />
+      <Button title="Sign-up" onPress={handleLogin} />
     </View>
   );
 }
