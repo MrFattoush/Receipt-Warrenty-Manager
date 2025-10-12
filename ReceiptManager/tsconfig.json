@@ -1,12 +1,6 @@
 {
-  "extends": "@react-native/typescript-config",
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "jsx": "react-native"
-  },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["**/node_modules", "**/Pods"]
+    "strict": true
+  }
 }
