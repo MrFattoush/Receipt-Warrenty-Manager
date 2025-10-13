@@ -15,7 +15,14 @@ export default function App() {
         <Stack.Navigator initialRouteName="Login">
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Signup" component={SignupScreen} />
-          <Stack.Screen name="Dashboard" component={DashboardScreen} />
+          <Stack.Screen 
+            name="Dashboard" 
+            component={DashboardScreen}
+            options={{ 
+              headerLeft: () => null,  // Remove back button
+              gestureEnabled: false     // Disable swipe-back gesture
+            }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

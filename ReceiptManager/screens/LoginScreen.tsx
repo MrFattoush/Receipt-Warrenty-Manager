@@ -43,7 +43,7 @@ export default function LoginScreen() {
 
       if (response.ok) {
         console.log('Login successful');
-        navigation.navigate('Dashboard'); 
+        navigation.replace('Dashboard');  // Replace instead of navigate to prevent going back
       } else {
         const data = await response.json();         // frontend sees it as JSON instead of text
         setErrorMessage(data.message || data || 'Login failed. Check credentials.');
@@ -84,7 +84,7 @@ export default function LoginScreen() {
       <Button title="Enter" onPress={handleLogin} />
 
       <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-        <Text style={{ color: 'blue', marginTop: 10 }}>Don’t have an account? Sign up</Text>
+        <Text style={{ color: 'blue', textAlign: 'center', marginTop: 10 }}>Don’t have an account? Sign up</Text>
       </TouchableOpacity>
     </View>
   );

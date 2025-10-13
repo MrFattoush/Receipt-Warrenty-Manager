@@ -21,7 +21,7 @@ export default function DashboardScreen() {
         method: 'GET',
         credentials: 'include',
       });
-      navigation.navigate('Login');
+      navigation.replace('Login');  // Replace to prevent going back after logout
     } catch (error) {
       console.error('Error logging out:', error);
     }
