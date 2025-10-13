@@ -90,6 +90,7 @@ export default function LoginScreen() {
   );
 }
 
+// TO DO: PAGE NEEDS TO LOOK COOL
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff' },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, alignSelf: 'center' },
