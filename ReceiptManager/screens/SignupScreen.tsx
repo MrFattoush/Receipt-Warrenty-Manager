@@ -14,6 +14,7 @@ type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 export default function SignupScreen() {
   const navigation = useNavigation<NavigationProp>();
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -26,6 +27,21 @@ export default function SignupScreen() {
     setErrorMessage('');
     setSuccessMessage('');
 
+    if (!username){
+      setErrorMessage('Missing Username');
+      return;
+    }
+
+    if (!email){
+      setErrorMessage('Invalid email');
+      return;
+    }
+
+    if (!password || !confirmPassword){
+      setErrorMessage('Please finish setting up your password');
+      return;
+    }
+
     if (password !== confirmPassword) {
       setErrorMessage('Passwords do not match');
       return;
@@ -36,10 +52,10 @@ export default function SignupScreen() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          username: email, 
+          username: username, 
           email: email, 
-          password,
-          confirmPassword 
+          password: password,
+          confirmPassword: confirmPassword 
         }),
       });
 
@@ -62,6 +78,15 @@ export default function SignupScreen() {
 
       {errorMessage ? <Text style={{ color: 'red', marginBottom: 10 }}>{errorMessage}</Text> : null}
       {successMessage ? <Text style={{ color: 'green', marginBottom: 10 }}>{successMessage}</Text> : null}
+
+
+      <TextInput
+        style={styles.input}
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
+        autoCapitalize="none"
+      />
 
       <TextInput
         style={styles.input}
@@ -104,6 +129,12 @@ export default function SignupScreen() {
       </View>
 
       <Button title="Sign Up" onPress={handleSignup} />
+
+      <TouchableOpacity onPress={() => navigation.navigate('Login')} style={{ marginTop: 20 }}>
+        <Text style={{ textAlign: 'center', color: '#007AFF' }}>
+          Already have an account? Login
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }

@@ -6,7 +6,7 @@
 //   Example: '192.168.1.100'
 
 // For testing on physical device, use your computer's IP address:
-export const API_URL = 'http://192.168.1.101:5000';
+export const API_URL = 'http://192.168.1.35:5000';
 
 // For testing on emulator/web browser, use localhost:
 // export const API_URL = 'http://localhost:5000';

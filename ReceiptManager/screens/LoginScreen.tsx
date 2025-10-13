@@ -15,25 +15,38 @@ type NavigationProp = StackNavigationProp<RootStackParamList>;
 export default function LoginScreen() {
   const navigation = useNavigation<NavigationProp>();
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [hidePassword, setHidePassword] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleLogin = async () => {
+    setErrorMessage('');
+    
+    if (!username){
+      setErrorMessage('Please enter your username');
+      return;
+    }
+    if (!password){
+      setErrorMessage('Please enter your password');
+      return;
+    }
+
+
     try {
       const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',  // for session cookies
-        body: JSON.stringify({ username: email, password }),
+        body: JSON.stringify({ username: username, password }),
       });
 
       if (response.ok) {
         console.log('Login successful');
-        navigation.navigate('Dashboard'); // or whatever your next screen is
+        navigation.navigate('Dashboard'); 
       } else {
-        const data = await response.text();
-        setErrorMessage(data || 'Login failed. Check credentials.');
+        const data = await response.json();         // frontend sees it as JSON instead of text
+        setErrorMessage(data.message || data || 'Login failed. Check credentials.');
       }
     } catch (error) {
       console.error('Error connecting to backend:', error);
@@ -49,16 +62,16 @@ export default function LoginScreen() {
 
       <TextInput
         style={styles.input}
-        placeholder="Please enter a valid email"
-        value={email}
-        onChangeText={setEmail}
+        placeholder="Please enter your username"
+        value={username}
+        onChangeText={setUsername}
         autoCapitalize="none"
       />
 
       <View style={styles.passwordContainer}>
         <TextInput
           style={styles.passwordInput}
-          placeholder="Please enter a password"
+          placeholder="Please enter your password"
           secureTextEntry={hidePassword}
           value={password}
           onChangeText={setPassword}
