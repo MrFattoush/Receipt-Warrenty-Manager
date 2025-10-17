@@ -1,0 +1,5 @@
+# Ignore all node_modules folders in every subdirectory
+**/node_modules/
+
+# Ignore my-app if it exists
+my-app/
