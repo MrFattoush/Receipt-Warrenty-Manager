@@ -10,6 +10,7 @@ type RootStackParamList = {
   Dashboard: undefined;
   ScanReceipt: undefined;
   ManuallyAdd: undefined;
+  MetadataScreen: { imageUri: string };
 };
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
