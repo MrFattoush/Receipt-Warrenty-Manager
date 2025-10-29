@@ -129,21 +129,6 @@ app.use(express.urlencoded({extended: false}));         // helps understand form
 
 // --- AUTHENTICATION - (LOGIN AND SIGNIN) --- //
 
-// access control - checks if the user is logged in
-// function requireAuth(req, res, next) {
-//     if (req.session && req.session.userId) {
-//         next();
-//     } else {
-//         res.redirect('/login');
-//     }
-//}
-
-// ----- LOGIN ----- >>
-// rendering login page - sends GET request for server
-// app.get('/login', function(req, res) {
-//     res.render('login', {error: null});
-// });
-
 // login check - if user exists then redirect to dashboard; else keep them at the login page
 app.post('/login', function(req, res){
     const { username, password } = req.body;
@@ -158,12 +143,7 @@ app.post('/login', function(req, res){
     }
 });
 
-// ----- SIGNUP --- >>
-
-// app.get('/signup', function(req, res){
-//     res.render('signup', {error: null, success: null});
-// });
-
+// signup check
 app.post('/signup', function(req, res){
     const {username, email, password, confirmPassword} = req.body
     // add some validation
@@ -192,7 +172,8 @@ app.post('/signup', function(req, res){
         username: username,
         email: email,
         password: password,
-        receipts: []
+        receipts: [],
+        receiptData: [],
     };
     users.push(newUser);
     saveUser();         // added
@@ -208,8 +189,70 @@ app.get('/logout', function(req, res){
     res.json('login', {error: null, success: null});
 })
 
-// ----- RECEIPT MANAGEMENT ----- //
+// ----- MANUALLY ENTERING DATA ----- //
 
+app.post('/add-receipt', function(req, res){
+    const {merchant, totalAmount, purchaseDate} = req.body;
+
+    // validate user
+    if (!req.session || !req.session.userId) {
+        console.log('No session or userId found');
+        return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
+    // validate data
+    if (!merchant && !totalAmount && !purchaseDate){
+        return res.status(400).json({ success: false, message: 'All fields are required' });
+    }
+    if (!merchant){
+        return res.status(400).json({ success: false, message: 'Missing merchant' });
+    }
+    if (!totalAmount){
+        return res.status(400).json({success: false, message: 'Missing total amount'});
+    }
+    if (!purchaseDate){
+        return res.status(400).json({success: false, message: 'Missing purchase date'});
+    }
+
+    // find user
+    const user = findUserById(req.session.userId);
+    if(!user){
+        console.log('User ID not found:', req.session.UserId);
+        return res.status(404).json({ success: false, message: 'User not found'});
+    }
+
+    const receipt = {
+        id: user.receipts.length > 0 ? Math.max(...user.receipts.map(r => r.id)) + 1 : 1,
+        filename: null,
+        originalName: null,
+        path: null,
+        ocrData: null,
+        uploadDate: new Date().toISOString(),
+        metadata: {
+            merchant: merchant,
+            amount: totalAmount,
+            date: purchaseDate,
+            category: null
+        }
+    };
+
+    console.log('Created manual data from receipt:', receipt);
+
+    // add data to user's receiptData array
+    user.receipts.push(receipt);
+    const saveResult = saveUser();
+    console.log('Save result:', saveResult);
+
+    res.json({ 
+        success: true, 
+        message: 'Receipt data uploaded successfully',
+        receipt: receipt
+    });
+});
+
+
+
+
+// ----- RECEIPT MANAGEMENT ----- //
 // Helper function to find user by ID
 function findUserById(userId) {
     return users.find(u => u.id === userId);
@@ -250,8 +293,8 @@ app.post('/upload-receipt', upload.single('image'), function(req, res) {
         uploadDate: new Date().toISOString(),
         ocrData: null, // will be processed later with OCR
         metadata: {
-            amount: null,
             merchant: null,
+            amount: null,
             date: null,
             category: null
         }

@@ -1,18 +1,68 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
+import type { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
+import { API_URL } from '../config';
 
 
+type RootStackParamList = {
+  ManuallyAddScreen: undefined;
+  Dashboard: undefined;
+};
+
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 export default function ManuallyAddScreen() {
-
+  const navigation = useNavigation<NavigationProp>();
   const [merchant, setMerchant] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [purchaseDate, setPurchaseDate] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleSaveReceipt = async () => {
+    setErrorMessage('');
+
+    if (!merchant){
+      setErrorMessage('please enter merchant');
+      return;
+    }
+    if (!totalAmount){
+      setErrorMessage('please enter amount');
+      return;
+    }
+    if (!purchaseDate){
+      setErrorMessage('please enter purchase date');
+      return;
+    }
+
+
+    try {
+      const response = await fetch(`${API_URL}/add-receipt`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',  // for session cookies
+        body: JSON.stringify({merchant, totalAmount, purchaseDate}),
+      });
+
+      if (response.ok) {
+        console.log('Received Receipt Data Successfully!');
+        navigation.replace('Dashboard');  // Replace instead of navigate to prevent going back
+      } else {
+        const data = await response.json();         // frontend sees it as JSON instead of text
+        setErrorMessage(data.message || data || 'Receipt Data Receival Failed. Try Again');
+      }
+    } catch (error) {
+      console.error('Error connecting to backend:', error);
+      setErrorMessage('Cannot connect to server.');
+    }
+
+  };
 
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Manual Entry</Text>
+      {errorMessage ? <Text style={{ color: 'red' }}>{errorMessage}</Text> : null}
       <TextInput
       style={styles.input}
       placeholder="Merchant Name"
@@ -37,7 +87,7 @@ export default function ManuallyAddScreen() {
       />
 
 
-      <Button title="Save Receipt" onPress={() => console.log('Submit pressed')}/>
+      <Button title="Save Receipt" onPress={handleSaveReceipt}/>
     </View>
   );
 }
