@@ -42,9 +42,9 @@ export default function ScanReceiptScreen() {
         // For now, we'll use image picker as a fallback
         // In a real implementation, you'd use CameraView.takePictureAsync()
         const result = await ImagePicker.launchCameraAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          mediaTypes: 'images',
           allowsEditing: true,
-          aspect: [4, 3],
+          //aspect: [1, 2],
           quality: 0.8,
         });
         
@@ -68,9 +68,9 @@ export default function ScanReceiptScreen() {
     try {
       console.log('Opening gallery...');
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: 'images',
         allowsEditing: true,
-        aspect: [4, 3],
+        //aspect: [1, 2],
         quality: 0.8,
       });
 
@@ -311,15 +311,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   captureArea: {
-    width: 250,
-    height: 300,
+    width: 200,
+    height: 400,
     borderWidth: 2,
     borderColor: '#DD27F5',
     borderRadius: 10,
     backgroundColor: 'transparent',
   },
   capturedImage: {
-    width: 300,
+    width: 200,
     height: 400,
     borderRadius: 10,
     marginVertical: 20,

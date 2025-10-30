@@ -8,6 +8,7 @@ var fs = require('fs');
 const cors = require('cors');
 const multer = require('multer');   // helps handle photo uploads
 const app = express();        // gives an express app instance
+const Tesseract = require('tesseract.js')
 
 // multer for file uploads
 const storage = multer.diskStorage({                          // creates a storage config for multer
@@ -313,6 +314,35 @@ app.post('/upload-receipt', upload.single('image'), function(req, res) {
         receipt: receipt
     });
 });
+
+// Temporary receipts for parsing
+app.post('/parse-receipt', upload.single('image'), async function(req, res){
+    console.log('Running Parse');
+    console.log('Session:', req.session);
+    console.log('File:', req.file);
+    console.log('Body:', req.body);
+
+    if (!req.session || !req.session.userId){
+        console.log('Authentication Error')
+        return res.status(401).json({ success: false, message: 'Not Authenticated'});
+    }
+    
+    if (!req.file){
+        console.log('File Error')
+        return res.status(404).json({success: false, message: 'Could not find file'});
+    }
+
+    const result = await Tesseract.recognize(
+        req.file.path,
+        'eng',
+        {logger: info => console.log(info)}
+    );
+
+    console.log('OCR Result:', result.data.text);
+
+});
+
+
 
 // Get user's receipts
 app.get('/receipts', function(req, res) {
