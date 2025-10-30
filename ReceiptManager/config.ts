@@ -1,16 +1,35 @@
-// API Configuration
-// For development on physical device, replace 'localhost' with your computer's local IP address
-// To find your IP:
-//   Windows: Run 'ipconfig' in PowerShell and look for IPv4 Address (under Wi-Fi adapter)
-//   Mac/Linux: Run 'ifconfig' or 'ip addr' and look for inet address
-//   
-// IMPORTANT: If you can't connect from your phone, your IP may have changed!
-// Quick fix: Run 'ipconfig' in PowerShell, find "Wireless LAN adapter Wi-Fi" -> IPv4 Address
-//            Then update the IP below
-export const API_URL = 'http://192.168.1.35:5000';
-// For testing on physical device, use your computer's IP address:
-//export const API_URL = 'http://10.195.80.45:5000';
+// API Configuration - Auto-detects environment
+import { Platform } from 'react-native';
 
-// For testing on emulator/web browser, use localhost:
-// export const API_URL = 'http://localhost:5000';
+// Function to get the appropriate API URL based on platform
+const getApiUrl = () => {
+  if (__DEV__) {
+    // Development mode
+    if (Platform.OS === 'web') {
+      // Web browser - use localhost
+      return 'http://localhost:5000';
+    } else {
+      // Mobile device - use your computer's IP
+      // Update this IP when you change networks
+      return 'http://192.168.1.102:5000';
+    }
+  } else {
+    // Production mode - replace with your production server URL
+    return 'https://your-production-server.com';
+  }
+};
+
+export const API_URL = getApiUrl();
+
+// Helper function to update IP address easily
+export const updateApiUrl = (newIp: string) => {
+  // This function can be called to update the IP programmatically
+  // For now, just update the hardcoded IP above
+  console.log(`To update API URL, change the IP in config.ts to: ${newIp}`);
+};
+
+// Instructions for finding your IP:
+// Windows: Run 'ipconfig' in PowerShell, look for "Wireless LAN adapter Wi-Fi" -> IPv4 Address
+// Mac/Linux: Run 'ifconfig' or 'ip addr', look for inet address
+// Common IP ranges: 192.168.x.x, 10.x.x.x, 172.16-31.x.x
 

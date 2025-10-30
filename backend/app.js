@@ -5,8 +5,38 @@ const express = require('express');
 var session = require('express-session');
 var path = require('path');
 var fs = require('fs');    
-const cors = require('cors');                 
+const cors = require('cors');
+const multer = require('multer');   // helps handle photo uploads
 const app = express();        // gives an express app instance
+
+// multer for file uploads
+const storage = multer.diskStorage({                          // creates a storage config for multer
+    destination: function (req, file, cb) {                   // request file callback
+        const uploadPath = path.join(__dirname, 'uploads');   // upload path -> folder names uploads
+        if (!fs.existsSync(uploadPath)) {                     // if that path does not exists, make one
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+        cb(null, uploadPath);                                 // upload path to uploads folder directory  
+    },
+    filename: function (req, file, cb) {                                            // setting a function for filename
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);    // creates a unique string to prevent any name conflicts
+        cb(null, 'receipt-' + uniqueSuffix + path.extname(file.originalname));      // creates a final filename
+    }  
+});
+
+const upload = multer({ 
+    storage: storage,                       // grabs previous storage object/definition
+    limits: {
+        fileSize: 10 * 1024 * 1024          // 10MB limit
+    },
+    fileFilter: function (req, file, cb) {              // makes sure if the image being uploaded is an image and not anything else
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed!'), false);
+        }
+    }
+});
 
 // ----- HELPER FUNCTIONS (USERS for now) -----//
 
@@ -52,16 +82,39 @@ function checkEmailExists(email){
 // --- SESSION MIDDLEWARE --- //
 // (This is super important because it gives a foundation of how the app communicates with users and remember who they are :D )
 
-// REACT frontend access
+// REACT frontend access - Dynamic CORS for development
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+        
+        // Allow localhost and common development ports
+        const allowedOrigins = [
+            'http://localhost:3000',
+            'http://localhost:19006',  // Expo development server
+            'http://localhost:8081',   // Metro bundler
+            'http://127.0.0.1:3000',
+            'http://127.0.0.1:19006',
+            'http://127.0.0.1:8081'
+        ];
+        
+        // Allow any local network IP (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
+        const localNetworkRegex = /^https?:\/\/(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.)/;
+        
+        if (allowedOrigins.includes(origin) || localNetworkRegex.test(origin)) {
+            callback(null, true);
+        } else {
+            console.log('CORS blocked origin:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 
 app.use(session({               // session is a way to remember a specific user
     secret: 'rwm-secret-key',   // they need to have a 'locker key'
     resave: false,              // if nothing has been changed, no need to save the session
-    saveUnitialized: false,     // don't create an empty session unless the user is actually active on it
+    saveUninitialized: false,   // don't create an empty session unless the user is actually active on it
     cookie: { maxAge: 3600000}  // 1 hour session cookie
 }));
 
@@ -75,21 +128,6 @@ app.use(express.urlencoded({extended: false}));         // helps understand form
 
 
 // --- AUTHENTICATION - (LOGIN AND SIGNIN) --- //
-
-// access control - checks if the user is logged in
-// function requireAuth(req, res, next) {
-//     if (req.session && req.session.userId) {
-//         next();
-//     } else {
-//         res.redirect('/login');
-//     }
-//}
-
-// ----- LOGIN ----- >>
-// rendering login page - sends GET request for server
-// app.get('/login', function(req, res) {
-//     res.render('login', {error: null});
-// });
 
 // login check - if user exists then redirect to dashboard; else keep them at the login page
 app.post('/login', function(req, res){
@@ -105,12 +143,7 @@ app.post('/login', function(req, res){
     }
 });
 
-// ----- SIGNUP --- >>
-
-// app.get('/signup', function(req, res){
-//     res.render('signup', {error: null, success: null});
-// });
-
+// signup check
 app.post('/signup', function(req, res){
     const {username, email, password, confirmPassword} = req.body
     // add some validation
@@ -138,7 +171,9 @@ app.post('/signup', function(req, res){
         id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
         username: username,
         email: email,
-        password: password
+        password: password,
+        receipts: [],
+        receiptData: [],
     };
     users.push(newUser);
     saveUser();         // added
@@ -153,6 +188,151 @@ app.get('/logout', function(req, res){
     req.session.destroy();
     res.json('login', {error: null, success: null});
 })
+
+// ----- MANUALLY ENTERING DATA ----- //
+
+app.post('/add-receipt', function(req, res){
+    const {merchant, totalAmount, purchaseDate} = req.body;
+
+    // validate user
+    if (!req.session || !req.session.userId) {
+        console.log('No session or userId found');
+        return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
+    // validate data
+    if (!merchant && !totalAmount && !purchaseDate){
+        return res.status(400).json({ success: false, message: 'All fields are required' });
+    }
+    if (!merchant){
+        return res.status(400).json({ success: false, message: 'Missing merchant' });
+    }
+    if (!totalAmount){
+        return res.status(400).json({success: false, message: 'Missing total amount'});
+    }
+    if (!purchaseDate){
+        return res.status(400).json({success: false, message: 'Missing purchase date'});
+    }
+
+    // find user
+    const user = findUserById(req.session.userId);
+    if(!user){
+        console.log('User ID not found:', req.session.UserId);
+        return res.status(404).json({ success: false, message: 'User not found'});
+    }
+
+    const receipt = {
+        id: user.receipts.length > 0 ? Math.max(...user.receipts.map(r => r.id)) + 1 : 1,
+        filename: null,
+        originalName: null,
+        path: null,
+        ocrData: null,
+        uploadDate: new Date().toISOString(),
+        metadata: {
+            merchant: merchant,
+            amount: totalAmount,
+            date: purchaseDate,
+            category: null
+        }
+    };
+
+    console.log('Created manual data from receipt:', receipt);
+
+    // add data to user's receiptData array
+    user.receipts.push(receipt);
+    const saveResult = saveUser();
+    console.log('Save result:', saveResult);
+
+    res.json({ 
+        success: true, 
+        message: 'Receipt data uploaded successfully',
+        receipt: receipt
+    });
+});
+
+
+
+
+// ----- RECEIPT MANAGEMENT ----- //
+// Helper function to find user by ID
+function findUserById(userId) {
+    return users.find(u => u.id === userId);
+}
+
+// Upload receipt endpoint
+app.post('/upload-receipt', upload.single('image'), function(req, res) {
+    console.log('Upload request received');                                 // add some logs
+    console.log('Session:', req.session);
+    console.log('File:', req.file);
+    console.log('Body:', req.body);
+
+    // make sure the user is present
+    if (!req.session || !req.session.userId) {
+        console.log('No session or userId found');
+        return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
+    // checks if file was uploaded
+    if (!req.file) {
+        console.log('No file uploaded');
+        return res.status(400).json({ success: false, message: 'No image file provided' });
+    }
+    // makes sure user is found
+    const user = findUserById(req.session.userId);
+    if (!user) {
+        console.log('User not found for ID:', req.session.userId);
+        return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    console.log('User found:', user.username);
+
+    // create receipt object
+    const receipt = {
+        id: user.receipts.length > 0 ? Math.max(...user.receipts.map(r => r.id)) + 1 : 1,
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        path: req.file.path,
+        uploadDate: new Date().toISOString(),
+        ocrData: null, // will be processed later with OCR
+        metadata: {
+            merchant: null,
+            amount: null,
+            date: null,
+            category: null
+        }
+    };
+
+    console.log('Created receipt:', receipt);
+
+    // add receipt to user's receipts array
+    user.receipts.push(receipt);
+    const saveResult = saveUser();
+    console.log('Save result:', saveResult);
+
+    res.json({ 
+        success: true, 
+        message: 'Receipt uploaded successfully',
+        receipt: receipt
+    });
+});
+
+// Get user's receipts
+app.get('/receipts', function(req, res) {
+    if (!req.session || !req.session.userId) {
+        return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
+
+    const user = findUserById(req.session.userId);
+    if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    res.json({ 
+        success: true, 
+        receipts: user.receipts 
+    });
+});
+
+// Serve uploaded images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 //module.exports = app;
 
