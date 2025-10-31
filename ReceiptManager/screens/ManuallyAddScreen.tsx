@@ -13,7 +13,11 @@ export default function ManuallyAddScreen() {
   const [merchant, setMerchant] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [purchaseDate, setPurchaseDate] = useState('');
+  const [warrantyItem, setWarrantyItem] = useState('');
+  const [warrantyExpiration, setWarrantyExpiration] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+
   const handleSaveReceipt = async () => {
     setErrorMessage('');
     if (!merchant){
@@ -85,10 +89,40 @@ export default function ManuallyAddScreen() {
       } else {
       setPurchaseDate(cleaned);
       }
-    }}
-  maxLength={10}
-/>
 
+    }}
+    maxLength={10}
+
+    
+    />
+
+    <TextInput
+        style={styles.input}
+        placeholder="Item with Warranty"      // STILL NEED TO CONNECT TO BACKEND
+        value={warrantyItem}
+        onChangeText={setWarrantyItem}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Warranty Expiration (MM/DD/YYYY)"   // STILL NEED TO CONNECT TO BACKEND
+        keyboardType="numeric"
+        value={warrantyExpiration}
+        onChangeText={(text) => {
+          let cleaned = text.replace(/\D/g, '');
+          if (cleaned.length > 4) {
+            cleaned = cleaned.slice(0, 8);
+            const formatted = cleaned.replace(/^(\d{2})(\d{2})(\d{0,4}).*/, '$1/$2/$3');
+            setWarrantyExpiration(formatted);
+          } else if (cleaned.length > 2) {
+            const formatted = cleaned.replace(/^(\d{2})(\d{0,2})/, '$1/$2');
+            setWarrantyExpiration(formatted);
+          } else {
+            setWarrantyExpiration(cleaned);
+          }
+        }}
+        maxLength={10}
+      />
 
       <Button title="Save Receipt" onPress={handleSaveReceipt}/>
     </View>
