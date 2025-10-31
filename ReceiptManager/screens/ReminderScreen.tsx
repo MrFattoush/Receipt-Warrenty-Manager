@@ -1,4 +1,6 @@
 // ReceiptManager/screens/ReminderScreen.tsx
+// Updated
+//s sdfsdfsdfs
 import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, StyleSheet, Button, Alert } from "react-native";
 
