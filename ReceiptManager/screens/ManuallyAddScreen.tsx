@@ -3,25 +3,19 @@ import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import { API_URL } from '../config';
-
-
 type RootStackParamList = {
   ManuallyAddScreen: undefined;
   Dashboard: undefined;
 };
-
 type NavigationProp = StackNavigationProp<RootStackParamList>;
-
 export default function ManuallyAddScreen() {
   const navigation = useNavigation<NavigationProp>();
   const [merchant, setMerchant] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [purchaseDate, setPurchaseDate] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
   const handleSaveReceipt = async () => {
     setErrorMessage('');
-
     if (!merchant){
       setErrorMessage('please enter merchant');
       return;
@@ -34,8 +28,6 @@ export default function ManuallyAddScreen() {
       setErrorMessage('please enter purchase date');
       return;
     }
-
-
     try {
       const response = await fetch(`${API_URL}/add-receipt`, {
         method: 'POST',
@@ -43,7 +35,6 @@ export default function ManuallyAddScreen() {
         credentials: 'include',  // for session cookies
         body: JSON.stringify({merchant, totalAmount, purchaseDate}),
       });
-
       if (response.ok) {
         console.log('Received Receipt Data Successfully!');
         navigation.replace('Dashboard');  // Replace instead of navigate to prevent going back
@@ -55,10 +46,7 @@ export default function ManuallyAddScreen() {
       console.error('Error connecting to backend:', error);
       setErrorMessage('Cannot connect to server.');
     }
-
   };
-
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Manual Entry</Text>
@@ -69,7 +57,6 @@ export default function ManuallyAddScreen() {
       value={merchant}
       onChangeText={setMerchant}
       />
-
       <TextInput
       style={styles.input}
       placeholder="Total Amount"
@@ -80,19 +67,33 @@ export default function ManuallyAddScreen() {
 
       <TextInput
       style={styles.input}
-      placeholder="Purchase Date"
+      placeholder="MM/DD/YYYY"
       keyboardType="numeric"
       value={purchaseDate}
-      onChangeText={setPurchaseDate}
-      />
+      onChangeText={(text) => {
+      // Remove non-numeric characters
+      let cleaned = text.replace(/\D/g, '');
+
+      // Automatically add slashes as user types
+      if (cleaned.length > 4) {
+      cleaned = cleaned.slice(0, 8);
+      const formatted = cleaned.replace(/^(\d{2})(\d{2})(\d{0,4}).*/, '$1/$2/$3');
+      setPurchaseDate(formatted);
+      } else if (cleaned.length > 2) {
+      const formatted = cleaned.replace(/^(\d{2})(\d{0,2})/, '$1/$2');
+      setPurchaseDate(formatted);
+      } else {
+      setPurchaseDate(cleaned);
+      }
+    }}
+  maxLength={10}
+/>
 
 
       <Button title="Save Receipt" onPress={handleSaveReceipt}/>
     </View>
   );
 }
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
