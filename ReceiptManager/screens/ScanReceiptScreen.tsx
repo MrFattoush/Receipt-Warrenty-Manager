@@ -104,7 +104,7 @@ export default function ScanReceiptScreen() {
       console.log('Uploading image:', capturedImage);
       console.log('FormData created');
 
-      const response = await fetch(`${API_URL}/upload-receipt`, {
+      const response = await fetch(`${API_URL}/parse-receipt`, {
         method: 'POST',
         body: formData,
         headers: {

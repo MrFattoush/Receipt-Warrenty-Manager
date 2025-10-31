@@ -340,6 +340,12 @@ app.post('/parse-receipt', upload.single('image'), async function(req, res){
 
     console.log('OCR Result:', result.data.text);
 
+    res.json({
+        success: true,
+        ocrText: result.data.text,
+        message: 'OCR Completed'
+    });
+
 });
 
 
