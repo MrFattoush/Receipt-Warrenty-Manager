@@ -1,4 +1,5 @@
 // ReceiptManager/screens/DashboardScreen.tsx
+// hi
 import React, { useState, useEffect } from "react";
 import {
   View,
