@@ -1,3 +1,4 @@
+const { supabase } = require('./supabaseClient.js');
 
 // IMPORTS 
 // fs is a Node.js file system  tht allows us to read, write, delete files, etc.
@@ -130,59 +131,89 @@ app.use(express.urlencoded({extended: false}));         // helps understand form
 // --- AUTHENTICATION - (LOGIN AND SIGNIN) --- //
 
 // login check - if user exists then redirect to dashboard; else keep them at the login page
-app.post('/login', function(req, res){
+app.post('/login', async function(req, res){
     const { username, password } = req.body;
 
-    const user = findUser(username, password);      // NEED TO MAKE A FINDUSER FUNCTION PARSING
-    if (user) {
-        req.session.userId = user.id;
-        req.session.username = user.username;
-        return res.json({success: true, user});      // NEED TO MAKE A DASHBOARD PAGE FOR LATER
-    } else {
-        res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
+    return await getUserFromDB(req, res, username, password);
+
+    // const user = getUserFromDB(username, password);      // NEED TO MAKE A FINDUSER FUNCTION PARSING
+    // if (user) {
+    //     req.session.userId = user.id;
+    //     req.session.username = user.username;
+    //     return res.json({success: true, user});      // NEED TO MAKE A DASHBOARD PAGE FOR LATER
+    // } else {
+    //     res.status(401).json({ success: false, message: 'Invalid credentials' });
+    // }
 });
 
+getUserFromDB = async (req, res, username, password) => {
+    const { data, error } = await supabase
+        .from('users')
+        .select('id, password_hash')
+        .eq('username', username)
+        .single(); // single() ensures we get one object instead of an array
+    
+    if (error) {
+        return res.status(401).json({ success: false, message: 'Username does not exist' });
+    }
+
+    if (data.password_hash !== password) {
+        console.log(data)
+        console.log(data.password_hash)
+        console.log(password)
+        return res.status(401).json({ success: false, message: 'Incorrect password' });
+    }
+
+    req.session.userId = data.id;
+    req.session.username = username;
+
+    return res.json({ success: true });
+}
+
 // signup check
-app.post('/signup', function(req, res){
-    const {username, email, password, confirmPassword} = req.body
+app.post('/signup', async function(req, res){
+    const {username, email, password} = req.body
     // add some validation
-    if (!username || !email || !password || !confirmPassword){
+    if (!username || !email || !password){
         return res.status(400).json({ success: false, message: 'All fields are required' });
     }
     if (password.length < 8){
         return res.status(400).json({ success: false, message: 'Password must be at least 8 characters' });
     }
-    if (password != confirmPassword){
-        return res.status(400).json({ success: false, message: 'Passwords do not match' });
-    }
-    if (username.length < 3) {
-        return res.status(400).json({ success: false, message: 'Username needs to be at least 4 characters long' });
-    }
-    if (checkUserExists(username)){
-        return res.status(400).json({ success: false, message: 'Username already exists' });
-    }
-    if (checkEmailExists(email)){
-        return res.status(400).json({ success: false, message: 'Email already exists' });
+    if (username.length < 4) {
+        return res.status(400).json({ success: false, message: 'Username must be at least 4 characters' });
     }
 
-    // creates a new user and then pushes it to JSON db
-    const newUser = {
-        id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
-        username: username,
-        email: email,
-        password: password,
-        receipts: [],
-        receiptData: [],
-    };
-    users.push(newUser);
-    saveUser();         // added
-
-    // auto login after signup
-    req.session.userId = newUser.id;
-    req.session.username = newUser.username;
-    return res.json({success: true, user: newUser});
+    return await addUserToDB(req, res, username, email, password)
 });
+
+addUserToDB = async (req, res, username, email, password) => {
+    const {data, error} = await supabase
+        .from('users')
+        .insert([
+            { username: username, email: email, password_hash: password }
+        ]);
+    
+    if (error) {
+        if (error.code === '23505') { // string comparison
+            return res.status(400).json({ success: false, message: 'Username or email already exists.' });
+        } 
+        else {
+            return res.status(400).json({ success: false, message: 'Signup failed. Please try again.' });
+        }
+    }
+
+    const generatedUser = await supabase
+        .from('users')
+        .select('id')
+        .eq('username', username)
+        .single(); // single() ensures we get one object instead of an array
+
+    req.session.userId = generatedUser.id;
+    req.session.username = username;
+
+    return res.json({success: true})
+}
 
 app.get('/logout', function(req, res){
     req.session.destroy();

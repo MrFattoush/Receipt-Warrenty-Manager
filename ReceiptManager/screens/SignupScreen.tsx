@@ -32,6 +32,11 @@ export default function SignupScreen() {
       return;
     }
 
+    if (username.length < 4) {
+      setErrorMessage('Username must be at least 4 characters long');
+      return;
+    }
+
     if (!email){
       setErrorMessage('Invalid email');
       return;
@@ -39,6 +44,11 @@ export default function SignupScreen() {
 
     if (!password || !confirmPassword){
       setErrorMessage('Please finish setting up your password');
+      return;
+    }
+
+    if (password.length < 8) {
+      setErrorMessage('Password must be at least 8 characters long');
       return;
     }
 
@@ -54,8 +64,7 @@ export default function SignupScreen() {
         body: JSON.stringify({ 
           username: username, 
           email: email, 
-          password: password,
-          confirmPassword: confirmPassword 
+          password: password
         }),
       });
 
