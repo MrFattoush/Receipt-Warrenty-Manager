@@ -5,6 +5,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
 import DashboardScreen from './screens/DashboardScreen';
+import ScanReceiptScreen from './screens/ScanReceiptScreen';
+import ManuallyAddScreen from './screens/ManuallyAddScreen';
 
 const Stack = createStackNavigator();
 
@@ -23,6 +25,8 @@ export default function App() {
               gestureEnabled: false     // Disable swipe-back gesture
             }}
           />
+          <Stack.Screen name="ScanReceipt" component={ScanReceiptScreen} />
+          <Stack.Screen name="ManuallyAdd" component={ManuallyAddScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
