@@ -1,4 +1,23 @@
 {
-  "name": "ReceiptManager",
-  "displayName": "ReceiptManager"
+  "expo": {
+    "name": "ReceiptManager",
+    "slug": "receipt-manager",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#ffffff",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.receiptmanager.app"
+    },
+    "android": {
+      "package": "com.receiptmanager.app"
+    }
+  }
 }
