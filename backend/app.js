@@ -12,7 +12,7 @@ const app = express();        // gives an express app instance
 
 // loads users from JSON file
 let users = [];
-const usersPath = path.join(__dirname, 'users.json');
+const usersPath = path.join(__dirname, 'database', 'users.json');
 try {
     if (fs.existsSync(usersPath)){
         users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
@@ -92,7 +92,7 @@ app.use(express.urlencoded({extended: false}));         // helps understand form
 // });
 
 // login check - if user exists then redirect to dashboard; else keep them at the login page
-app.post('login', function(req, res){
+app.post('/login', function(req, res){
     const { username, password } = req.body;
 
     const user = findUser(username, password);      // NEED TO MAKE A FINDUSER FUNCTION PARSING
@@ -111,7 +111,7 @@ app.post('login', function(req, res){
 //     res.render('signup', {error: null, success: null});
 // });
 
-app.post('signup', function(req, res){
+app.post('/signup', function(req, res){
     const {username, email, password, confirmPassword} = req.body
     // add some validation
     if (!username || !email || !password || !confirmPassword){
@@ -149,7 +149,7 @@ app.post('signup', function(req, res){
     return res.json({success: true, user: newUser});
 });
 
-app.get('logout', function(req, res){
+app.get('/logout', function(req, res){
     req.session.destroy();
     res.json('login', {error: null, success: null});
 })
