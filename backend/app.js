@@ -9,6 +9,7 @@ var fs = require('fs');
 const cors = require('cors');
 const multer = require('multer');   // helps handle photo uploads
 const app = express();        // gives an express app instance
+const bcrypt = require('bcrypt'); 
 
 // multer for file uploads
 const storage = multer.diskStorage({                          // creates a storage config for multer
@@ -157,7 +158,7 @@ getUserFromDB = async (req, res, username, password) => {
         return res.status(401).json({ success: false, message: 'Username does not exist' });
     }
 
-    if (data.password_hash !== password) {
+    if (!(await bcrypt.compare(password, data.password_hash))) {
         console.log(data)
         console.log(data.password_hash)
         console.log(password)
@@ -188,10 +189,12 @@ app.post('/signup', async function(req, res){
 });
 
 addUserToDB = async (req, res, username, email, password) => {
+    const passwordHash = await bcrypt.hash(password, 10);
+
     const {data, error} = await supabase
         .from('users')
         .insert([
-            { username: username, email: email, password_hash: password }
+            { username: username, email: email, password_hash: passwordHash }
         ]);
     
     if (error) {
@@ -243,7 +246,7 @@ app.post('/add-receipt', async function (req, res) {
   let formattedDate = null;
   try {
     const [month, day, year] = purchaseDate.split('/');
-    if (!month || !day || !year) throw new Error('Invalid date format');
+    if (!month || !day || !year || year.length !== 4) throw new Error('Invalid date format');
     formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
   } catch (err) {
     console.error('Date formatting error:', err);
@@ -375,5 +378,5 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 //module.exports = app;
 
-const PORT = 5001;
+const PORT = 5000;
 app.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));
