@@ -47,7 +47,7 @@ const usersPath = path.join(__dirname, 'database', 'users.json');
 try {
     if (fs.existsSync(usersPath)){
         users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
-        console.log('Loaded ${users.length} users');
+        console.log(`Loaded ${users.length} users`);
     }
 } catch (error) {
     console.error('Error loading users:', error);
@@ -221,64 +221,72 @@ app.get('/logout', function(req, res){
 })
 
 // ----- MANUALLY ENTERING DATA ----- //
+app.post('/add-receipt', async function (req, res) {
+  const { merchant, totalAmount, purchaseDate } = req.body;
 
-app.post('/add-receipt', function(req, res){
-    const {merchant, totalAmount, purchaseDate} = req.body;
+  console.log('Received /add-receipt request:', req.body);
+  console.log('Session at /add-receipt:', req.session);
 
-    // validate user
-    if (!req.session || !req.session.userId) {
-        console.log('No session or userId found');
-        return res.status(401).json({ success: false, message: 'Not authenticated' });
-    }
-    // validate data
-    if (!merchant && !totalAmount && !purchaseDate){
-        return res.status(400).json({ success: false, message: 'All fields are required' });
-    }
-    if (!merchant){
-        return res.status(400).json({ success: false, message: 'Missing merchant' });
-    }
-    if (!totalAmount){
-        return res.status(400).json({success: false, message: 'Missing total amount'});
-    }
-    if (!purchaseDate){
-        return res.status(400).json({success: false, message: 'Missing purchase date'});
-    }
+  // --- 1. Check if user is logged in ---
+  if (!req.session || !req.session.userId) {
+    console.log('No session or userId found');
+    return res.status(401).json({ success: false, message: 'Not authenticated' });
+  }
 
-    // find user
-    const user = findUserById(req.session.userId);
-    if(!user){
-        console.log('User ID not found:', req.session.UserId);
-        return res.status(404).json({ success: false, message: 'User not found'});
-    }
+  // --- 2. Validate input fields ---
+  if (!merchant || !totalAmount || !purchaseDate) {
+    console.log('Validation failed: missing fields');
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
 
-    const receipt = {
-        id: user.receipts.length > 0 ? Math.max(...user.receipts.map(r => r.id)) + 1 : 1,
-        filename: null,
-        originalName: null,
-        path: null,
-        ocrData: null,
-        uploadDate: new Date().toISOString(),
-        metadata: {
-            merchant: merchant,
-            amount: totalAmount,
-            date: purchaseDate,
-            category: null
+  // --- 3. Convert purchaseDate to YYYY-MM-DD for Supabase ---
+  let formattedDate = null;
+  try {
+    const [month, day, year] = purchaseDate.split('/');
+    if (!month || !day || !year) throw new Error('Invalid date format');
+    formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  } catch (err) {
+    console.error('Date formatting error:', err);
+    return res.status(400).json({ success: false, message: 'Purchase date must be MM/DD/YYYY' });
+  }
+
+  // --- 4. Convert amount to float ---
+  const amount = parseFloat(totalAmount);
+  if (isNaN(amount)) {
+    return res.status(400).json({ success: false, message: 'Total amount must be a number' });
+  }
+
+  // --- 5. Insert into Supabase ---
+  try {
+    const { data, error } = await supabase
+      .from('receipts')
+      .insert([
+        {
+          user_id: req.session.userId,
+          store_name: merchant,
+          amount: amount,
+          receipt_date: formattedDate,
+          upload_date: new Date().toISOString(),
+          category: null,
         }
-    };
+      ])
+      .select();
 
-    console.log('Created manual data from receipt:', receipt);
+    if (error) {
+      console.error('Supabase insert error:', error);
+      return res.status(500).json({ success: false, message: 'Failed to save receipt', error });
+    }
 
-    // add data to user's receiptData array
-    user.receipts.push(receipt);
-    const saveResult = saveUser();
-    console.log('Save result:', saveResult);
+    console.log('Inserted receipt into Supabase:', data);
+    return res.json({ success: true, message: 'Receipt saved successfully', receipt: data[0] });
 
-    res.json({ 
-        success: true, 
-        message: 'Receipt data uploaded successfully',
-        receipt: receipt
-    });
+  } catch (err) {
+    console.error('Unexpected server error:', err);
+    return res.status(500).json({ success: false, message: 'Server error', error: err });
+  }
 });
+
+
 
 
 
@@ -367,5 +375,5 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 //module.exports = app;
 
-const PORT = 5000;
+const PORT = 5001;
 app.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));
