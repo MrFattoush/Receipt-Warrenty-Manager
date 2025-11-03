@@ -1,0 +1,84 @@
+Absolutely, Mo! Let me read both gitignore files and create a combined one for you.
+
+[2 tools called]
+
+Perfect! Here's a combined `.gitignore` file you can create at the **root** of your project (at the same level as your `backend` and `ReceiptManager` folders):
+
+```gitignore
+# Environment and Config Files
+backend/env.js
+ReceiptManager/config.ts
+
+# OSX
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log
+yarn-error.log
+
+# Node modules
+node_modules/
+
+# Xcode
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+**/.xcode.env.local
+
+# Android/IntelliJ
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
+.cxx/
+*.keystore
+!debug.keystore
+.kotlin/
+
+# fastlane
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots
+**/fastlane/test_output
+
+# Bundle artifact
+*.jsbundle
+
+# Ruby / CocoaPods
+**/Pods/
+/vendor/bundle/
+
+# Metro
+.metro-health-check*
+
+# Testing
+/coverage
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Cursor rules (if you want to keep these private)
+.cursor/
+```
+
+Create a new `.gitignore` file at your project root and paste this in. This will cover both folders!
