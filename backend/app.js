@@ -225,7 +225,7 @@ app.get('/logout', function(req, res){
 
 // ----- MANUALLY ENTERING DATA ----- //
 app.post('/add-receipt', async function (req, res) {
-  const { merchant, totalAmount, purchaseDate } = req.body;
+  const { merchant, totalAmount, purchaseDate, warrantyItem, warrantyExpiration } = req.body;
 
   console.log('Received /add-receipt request:', req.body);
   console.log('Session at /add-receipt:', req.session);
@@ -259,7 +259,21 @@ app.post('/add-receipt', async function (req, res) {
     return res.status(400).json({ success: false, message: 'Total amount must be a number' });
   }
 
-  // --- 5. Insert into Supabase ---
+  // --- 5. Format warranty expiration date (optional) ---
+  let formattedWarrantyExp = null;
+  if (warrantyExpiration && warrantyExpiration.trim() !== '') {
+    try {
+      const [month, day, year] = warrantyExpiration.split('/');
+      if (!month || !day || !year || year.length !== 4) throw new Error('Invalid date format');
+      formattedWarrantyExp = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    } catch (err) {
+      console.error('Warranty date formatting error:', err);
+      return res.status(400).json({ success: false, message: 'Warranty expiration must be MM/DD/YYYY' });
+    }
+  }
+
+  // --- 6. Insert into Supabase ---
+
   try {
     const { data, error } = await supabase
       .from('receipts')
@@ -271,6 +285,8 @@ app.post('/add-receipt', async function (req, res) {
           receipt_date: formattedDate,
           upload_date: new Date().toISOString(),
           category: null,
+          warranty_item: warrantyItem || null,
+          warranty_exp_date: formattedWarrantyExp || null,
         }
       ])
       .select();
@@ -288,9 +304,6 @@ app.post('/add-receipt', async function (req, res) {
     return res.status(500).json({ success: false, message: 'Server error', error: err });
   }
 });
-
-
-
 
 
 
@@ -338,7 +351,7 @@ app.post('/upload-receipt', upload.single('image'), function(req, res) {
             merchant: null,
             amount: null,
             date: null,
-            category: null
+            category: null,
         }
     };
 
@@ -378,5 +391,5 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 //module.exports = app;
 
-const PORT = 5000;
+const PORT = 5001;
 app.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));

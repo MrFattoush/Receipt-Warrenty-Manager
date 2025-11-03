@@ -37,7 +37,7 @@ export default function ManuallyAddScreen() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',  // for session cookies
-        body: JSON.stringify({merchant, totalAmount, purchaseDate}),
+        body: JSON.stringify({merchant, totalAmount, purchaseDate, warrantyItem, warrantyExpiration}),
       });
       if (response.ok) {
         console.log('Received Receipt Data Successfully!');
