@@ -38,7 +38,7 @@ export default function LoginScreen() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',  // for session cookies
-        body: JSON.stringify({ username: username, password }),
+        body: JSON.stringify({ username: username, password: password }),
       });
 
       if (response.ok) {
