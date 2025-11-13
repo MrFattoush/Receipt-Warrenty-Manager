@@ -10,7 +10,8 @@ const cors = require('cors');
 const multer = require('multer');   // helps handle photo uploads
 const app = express();        // gives an express app instance
 const bcrypt = require('bcrypt'); 
-const Tesseract = require('tesseract.js')
+const Tesseract = require('tesseract.js');
+const sharp = require('sharp');
 
 // multer for file uploads
 const storage = multer.diskStorage({                          // creates a storage config for multer
@@ -390,7 +391,7 @@ app.post('/parse-receipt', upload.single('image'), async function(req, res){
     const result = await Tesseract.recognize(
         req.file.path,
         'eng',
-        {logger: info => console.log(info)}
+        //{logger: info => console.log(info)}
     );
 
     console.log('OCR Result:', result.data.text);
