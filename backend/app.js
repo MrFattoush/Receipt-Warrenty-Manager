@@ -371,6 +371,25 @@ app.post('/upload-receipt', upload.single('image'), function(req, res) {
     });
 });
 
+// function for preprocessiong image to better OCR parsing accuracy
+async function preprocessImage(inputPath, outputPath){
+    try {
+        await sharp(inputPath)
+            .grayscale()
+            .normalize()
+            .sharpen()
+            .threshold(128)
+            .toFile(outputPath);
+
+            console.log('Image preprocessed sucessfully');
+            return outputPath;
+    } catch (error) {
+        console.error('Error with processing image:', error);
+        throw error;
+    }
+}
+
+
 // Temporary receipts for parsing
 app.post('/parse-receipt', upload.single('image'), async function(req, res){
     console.log('Running Parse');
@@ -388,7 +407,12 @@ app.post('/parse-receipt', upload.single('image'), async function(req, res){
         return res.status(404).json({success: false, message: 'Could not find file'});
     }
 
+    const processedPath = req.file.path.replace('.jpg', '_processed.jpg');
+    await preprocessImage(req.file.path, processedPath);
+    
+
     const result = await Tesseract.recognize(
+        //processedPath,
         req.file.path,
         'eng',
         //{logger: info => console.log(info)}
