@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-na
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { API_URL } from '../config';
@@ -43,7 +44,7 @@ export default function ScanReceiptScreen() {
         // In a real implementation, you'd use CameraView.takePictureAsync()
         const result = await ImagePicker.launchCameraAsync({
           mediaTypes: 'images',
-          allowsEditing: true,
+          //allowsEditing: true,
           //aspect: [1, 2],
           quality: 0.8,
         });
@@ -69,7 +70,7 @@ export default function ScanReceiptScreen() {
       console.log('Opening gallery...');
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: 'images',
-        allowsEditing: true,
+        //allowsEditing: true,
         //aspect: [1, 2],
         quality: 0.8,
       });
@@ -138,6 +139,27 @@ export default function ScanReceiptScreen() {
     setCapturedImage(null);
   };
 
+  const cropImage = async () => {
+    if (!capturedImage) return;
+
+    try{
+      const result = await ImageManipulator.manipulateAsync(
+        capturedImage,
+        [],
+        {
+          compress: 0.8,
+          format: ImageManipulator.SaveFormat.JPEG,
+        }
+      );
+      Alert.alert('Crop', 'Opening crop editor...');
+
+      setCapturedImage(result.uri);
+    } catch (error){
+      console.error('Error Cropping image:', error);
+      Alert.alert('Error', 'Failed to crop image');
+    }
+  };
+
   if (!permission) {
     return (
       <View style={styles.container}>
@@ -172,6 +194,10 @@ export default function ScanReceiptScreen() {
             <Text style={styles.buttonText}>Retake</Text>
           </TouchableOpacity>
           
+          <TouchableOpacity style={[styles.button, styles.cropButton]} onPress={cropImage}>
+            <Text style={styles.buttonText}>Crop</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity 
             style={[styles.button, styles.uploadButton]} 
             onPress={uploadImage}
@@ -353,5 +379,8 @@ const styles = StyleSheet.create({
   },
   uploadButton: {
     backgroundColor: '#2196F3',
+  },
+  cropButton: {
+    backgroundColor: '#FF9800',
   },
 });
