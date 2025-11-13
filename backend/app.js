@@ -377,8 +377,6 @@ async function preprocessImage(inputPath, outputPath){
         await sharp(inputPath)
             .grayscale()
             .normalize()
-            .sharpen()
-            .threshold(128)
             .toFile(outputPath);
 
             console.log('Image preprocessed sucessfully');
@@ -412,8 +410,8 @@ app.post('/parse-receipt', upload.single('image'), async function(req, res){
     
 
     const result = await Tesseract.recognize(
-        //processedPath,
-        req.file.path,
+        processedPath,
+        //req.file.path,
         'eng',
         //{logger: info => console.log(info)}
     );
