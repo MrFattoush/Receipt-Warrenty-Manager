@@ -1,9 +1,26 @@
+Absolutely, Mo! Let me read both gitignore files and create a combined one for you.
+
+[2 tools called]
+
+Perfect! Here's a combined `.gitignore` file you can create at the **root** of your project (at the same level as your `backend` and `ReceiptManager` folders):
+
+```gitignore
+# Environment and Config Files
+backend/env.js
+ReceiptManager/config.ts
+
 # OSX
-#
 .DS_Store
 
+# Logs
+*.log
+npm-debug.log
+yarn-error.log
+
+# Node modules
+node_modules/
+
 # Xcode
-#
 build/
 *.pbxuser
 !default.pbxuser
@@ -23,8 +40,6 @@ DerivedData
 **/.xcode.env.local
 
 # Android/IntelliJ
-#
-build/
 .idea
 .gradle
 local.properties
@@ -35,19 +50,7 @@ local.properties
 !debug.keystore
 .kotlin/
 
-# node.js
-#
-node_modules/
-npm-debug.log
-yarn-error.log
-
 # fastlane
-#
-# It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
-# screenshots whenever they are needed.
-# For more information about the recommended setup visit:
-# https://docs.fastlane.tools/best-practices/source-control/
-
 **/fastlane/report.xml
 **/fastlane/Preview.html
 **/fastlane/screenshots
@@ -60,10 +63,10 @@ yarn-error.log
 **/Pods/
 /vendor/bundle/
 
-# Temporary files created by Metro to check the health of the file watcher
+# Metro
 .metro-health-check*
 
-# testing
+# Testing
 /coverage
 
 # Yarn
@@ -73,3 +76,9 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Cursor rules (if you want to keep these private)
+.cursor/
+```
+
+Create a new `.gitignore` file at your project root and paste this in. This will cover both folders!
