@@ -426,21 +426,51 @@ app.post('/parse-receipt', upload.single('image'), async function(req, res){
 
 });
 
-// Get user's receipts
-app.get('/receipts', function(req, res) {
-    if (!req.session || !req.session.userId) {
-        return res.status(401).json({ success: false, message: 'Not authenticated' });
+// // Get user's receipts
+// app.get('/receipts', function(req, res) {
+//     if (!req.session || !req.session.userId) {
+//         return res.status(401).json({ success: false, message: 'Not authenticated' });
+//     }
+
+//     const user = findUserById(req.session.userId);
+//     if (!user) {
+//         return res.status(404).json({ success: false, message: 'User not found' });
+//     }
+
+//     res.json({ 
+//         success: true, 
+//         receipts: user.receipts 
+//     });
+// });
+
+// GET /get-receipts
+app.get('/get-receipts', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, message: 'Not authenticated' });
+  }
+
+  try {
+    // return rows where warranty_item is not null OR warranty_exp_date is not null
+    const { data, error } = await supabase
+        .from('receipts')
+        .select('*')
+        .eq('user_id', req.session.userId)
+        .is('warranty_item', null)
+        .is('warranty_exp_date', null)
+        .order('receipt_date', { ascending: false });
+
+    if (error) {
+      console.error('Supabase get-receipts error:', error);
+      return res.status(500).json({ success: false, message: 'Failed to fetch receipts:', error });
     }
 
-    const user = findUserById(req.session.userId);
-    if (!user) {
-        return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    res.json({ 
-        success: true, 
-        receipts: user.receipts 
-    });
+    console.log(data);
+    return res.json({ success: true, receipts: data });
+  } 
+  catch (err) {
+    console.error('Server error in /get-receipts:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
 });
 
 // GET /get-warranties
@@ -491,5 +521,5 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 //module.exports = app;
 
-const PORT = 5001;
+const PORT = 5000;
 app.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));
