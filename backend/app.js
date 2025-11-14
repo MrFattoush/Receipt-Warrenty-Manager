@@ -426,8 +426,6 @@ app.post('/parse-receipt', upload.single('image'), async function(req, res){
 
 });
 
-
-
 // Get user's receipts
 app.get('/receipts', function(req, res) {
     if (!req.session || !req.session.userId) {
@@ -443,6 +441,49 @@ app.get('/receipts', function(req, res) {
         success: true, 
         receipts: user.receipts 
     });
+});
+
+// GET /get-warranties
+app.get('/get-warranties', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, message: 'Not authenticated' });
+  }
+
+  try {
+    // return rows where warranty_item is not null OR warranty_exp_date is not null
+    const { data, error } = await supabase
+        .from('receipts')
+        .select('*')
+        .eq('user_id', req.session.userId)
+        .not('warranty_item', 'is', null)
+        .not('warranty_exp_date', 'is', null)
+        .order('warranty_exp_date', { ascending: true });
+
+    if (error) {
+      console.error('Supabase get-warranties error:', error);
+      return res.status(500).json({ success: false, message: 'Failed to fetch warranties', error });
+    }
+
+    // compute days_left and expiringSoon in server (so frontend is simpler)
+    const today = new Date();
+    const warrantiesWithMeta = data.map((row) => {
+      let days_left = null;
+      let expiringSoon = false;
+      if (row.warranty_exp_date) {
+        const exp = new Date(row.warranty_exp_date);
+        // compute difference in days
+        const diffMs = exp.setHours(0,0,0,0) - (new Date()).setHours(0,0,0,0);
+        days_left = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        expiringSoon = days_left >= 0 && days_left <= 7; // within a week (including today)
+      }
+      return { ...row, days_left, expiringSoon };
+    });
+
+    return res.json({ success: true, warranties: warrantiesWithMeta });
+  } catch (err) {
+    console.error('Server error in /get-warranties:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
 });
 
 // Serve uploaded images

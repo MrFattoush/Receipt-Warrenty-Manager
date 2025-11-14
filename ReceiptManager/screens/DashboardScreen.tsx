@@ -10,6 +10,8 @@ type RootStackParamList = {
   Dashboard: undefined;
   ScanReceipt: undefined;
   ManuallyAdd: undefined;
+  ViewReceipts: undefined;
+  ViewWarranties: undefined;
   MetadataScreen: { imageUri: string };
 };
 
@@ -52,6 +54,20 @@ export default function DashboardScreen() {
       <Text style={styles.subtitle}>You're successfully logged in</Text>
       {/* Gives User option to choose between camera upload or manually filling in data */}
       <Button title="New Receipt" onPress={handleNewReceipt} color="#DD27F5" />
+
+      <Button 
+        title="View Receipts"  
+        onPress={() => navigation.navigate('ViewReceipts')} 
+        color="#4B7BE5" 
+      />
+
+      <View style={{ height: 10 }} />
+
+      <Button 
+        title="View Warranties"  
+        onPress={() => navigation.navigate('ViewWarranties')} 
+        color="#4CAF50" 
+      />
 
       
       <View style={styles.buttonContainer}>
