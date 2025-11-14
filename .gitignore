@@ -12,6 +12,11 @@ ReceiptManager/config.ts
 # OSX
 .DS_Store
 
+# Uploaded receipts - exclude all files in uploads
+backend/uploads/*
+# But keep the folder structure
+!backend/uploads/.gitkeep
+
 # Logs
 *.log
 npm-debug.log

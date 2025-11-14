@@ -387,6 +387,43 @@ async function preprocessImage(inputPath, outputPath){
     }
 }
 
+// Parse Receipt 
+function parseText(ocrText) {
+    const result = {
+        merchant: null,
+        amount: null,
+        date: null
+    };
+
+    console.log('Parsing OCR text...');
+
+    // Extract amount - find all prices near payment keywords and pick the largest
+    const amountRegex = /(?:Payment|Total|Amount Due|Balance|Grand Total|Due)[\s,:]*\$(\d+\.\d{2})/gi;
+    const matches = ocrText.matchAll(amountRegex);
+    let maxAmount = 0;
+
+    for (const match of matches) {
+        const amount = parseFloat(match[1]);
+        if (amount > maxAmount) {
+            maxAmount = amount;
+        }
+    }
+
+    if (maxAmount > 0) {
+        result.amount = maxAmount.toFixed(2);
+    }
+
+    const dateMatch = ocrText.match(/(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+    if (dateMatch) {
+        result.date = `${dateMatch[1]}/${dateMatch[2]}/${dateMatch[3]}`;
+    }
+
+
+    return result;
+
+}
+
+
 
 // Temporary receipts for parsing
 app.post('/parse-receipt', upload.single('image'), async function(req, res){
@@ -418,9 +455,13 @@ app.post('/parse-receipt', upload.single('image'), async function(req, res){
 
     console.log('OCR Result:', result.data.text);
 
+    const parsedData = parseText(result.data.text);
+    console.log('Parsed Data:', parsedData);
+
     res.json({
         success: true,
         ocrText: result.data.text,
+        parsedData: parsedData,     // sends parsed data to frontend
         message: 'OCR Completed'
     });
 

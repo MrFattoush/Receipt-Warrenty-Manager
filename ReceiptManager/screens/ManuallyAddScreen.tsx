@@ -1,18 +1,24 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { API_URL } from '../config';
 type RootStackParamList = {
-  ManuallyAddScreen: undefined;
+  ManuallyAddScreen: { parsedData?: { merchant: null, amount: string | null, date: string | null } };
   Dashboard: undefined;
 };
 type NavigationProp = StackNavigationProp<RootStackParamList>;
+type ManuallyAddRouteProp = RouteProp<RootStackParamList, 'ManuallyAddScreen'>; 
+
 export default function ManuallyAddScreen() {
+  const route = useRoute<ManuallyAddRouteProp>();  
+
+  const parsedData = route.params?.parsedData;  // get the parsed data
   const navigation = useNavigation<NavigationProp>();
+
   const [merchant, setMerchant] = useState('');
-  const [totalAmount, setTotalAmount] = useState('');
-  const [purchaseDate, setPurchaseDate] = useState('');
+  const [totalAmount, setTotalAmount] = useState(parsedData?.amount || '');  
+  const [purchaseDate, setPurchaseDate] = useState(parsedData?.date || '');
   const [warrantyItem, setWarrantyItem] = useState('');
   const [warrantyExpiration, setWarrantyExpiration] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
