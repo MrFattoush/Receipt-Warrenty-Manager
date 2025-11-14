@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, Button, FlatList, ActivityIndicator 
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { API_URL } from '../config';
+import listStyles from '../styles';
 
 type RootStackParamList = {
   Dashboard: undefined;
@@ -60,17 +61,17 @@ export default function ViewWarrantiesScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={listStyles.container}>
       <Button
         title="← Back to Dashboard"
         color="#777"
         onPress={() => navigation.navigate('Dashboard')}
       />
 
-      <Text style={styles.title}>Your Warranties</Text>
+      <Text style={listStyles.title}>Your Warranties</Text>
 
       <TextInput
-        style={styles.searchBar}
+        style={listStyles.searchBar}
         placeholder="Search warranties..."
         value={search}
         onChangeText={setSearch}
@@ -85,13 +86,13 @@ export default function ViewWarrantiesScreen() {
           data={filtered}
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item }) => (
-            <View style={styles.row}>
-              <Text style={styles.itemTitle}>{item.warranty_item ?? item.store_name ?? 'Item'}</Text>
-              <Text style={styles.itemMeta}>
+            <View style={listStyles.row}>
+              <Text style={listStyles.itemTitle}>{item.warranty_item ?? item.store_name ?? 'Item'}</Text>
+              <Text style={listStyles.itemMeta}>
                 {item.warranty_exp_date ? new Date(item.warranty_exp_date).toLocaleDateString() : 'No expiry date'}
                 {item.days_left != null ? ` • ${item.days_left >= 0 ? `${item.days_left} days left` : 'Expired'}` : ''}
               </Text>
-              {item.expiringSoon ? <Text style={styles.warn}>Expiring soon!</Text> : null}
+              {item.expiringSoon ? <Text style={listStyles.warn}>Expiring soon!</Text> : null}
             </View>
           )}
           ListEmptyComponent={<Text>No warranties found</Text>}
@@ -101,12 +102,12 @@ export default function ViewWarrantiesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  title: { fontSize: 26, fontWeight: 'bold', marginTop: 15, marginBottom: 10 },
-  searchBar: { borderWidth: 1, borderColor: '#ccc', padding: 12, borderRadius: 10, marginBottom: 15 },
-  row: { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#eee' },
-  itemTitle: { fontSize: 18, fontWeight: '600' },
-  itemMeta: { color: '#666', marginTop: 4 },
-  warn: { color: '#d9534f', fontWeight: '700', marginTop: 6 },
-});
+// const styles = StyleSheet.create({
+//   container: { flex: 1, padding: 20, backgroundColor: '#fff' },
+//   title: { fontSize: 26, fontWeight: 'bold', marginTop: 15, marginBottom: 10 },
+//   searchBar: { borderWidth: 1, borderColor: '#ccc', padding: 12, borderRadius: 10, marginBottom: 15 },
+//   row: { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#eee' },
+//   itemTitle: { fontSize: 18, fontWeight: '600' },
+//   itemMeta: { color: '#666', marginTop: 4 },
+//   warn: { color: '#d9534f', fontWeight: '700', marginTop: 6 },
+// });

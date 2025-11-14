@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, Button, FlatList, ActivityIndicator 
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { API_URL } from '../config';
+import listStyles from '../styles';
 
 type RootStackParamList = {
   Dashboard: undefined;
@@ -12,6 +13,8 @@ type RootStackParamList = {
 type ReceiptRow = {
   id: string;
   store_name: string;
+  receipt_date: string;
+  amount: string;
 };
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
@@ -23,12 +26,14 @@ export default function ViewReceiptsScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  
-  // const receipts = [   // todo: replace this with database.
-  //                      // todo: add an endpoint in backend (get-receipt)
-  //   { id: '1', name: 'Target Receipt' },
-  //   { id: '2', name: 'Walmart Receipt' },
-  // ];
+  const computeDaysAgo = (date: string) => {
+    const receiptDate = new Date(date);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - receiptDate.getTime());
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const noun = days === 1 ? 'day' : 'days';
+    return `${days} ${noun} ago`;
+  }
 
   const fetchReceipts = async () => {
     setLoading(true);
@@ -62,18 +67,18 @@ export default function ViewReceiptsScreen() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={listStyles.container}>
       <Button 
         title="← Back to Dashboard" 
         color="#777"
         onPress={() => navigation.navigate('Dashboard')}
       />
 
-      <Text style={styles.title}>All Receipts</Text>
+      <Text style={listStyles.title}>All Receipts</Text>
 
       <TextInput
-        style={styles.searchBar}
-        placeholder="Search receipts"
+        style={listStyles.searchBar}
+        placeholder="Search receipts by store name"
         value={search}
         onChangeText={setSearch}
       />
@@ -95,7 +100,16 @@ export default function ViewReceiptsScreen() {
           data={receipts.filter(r => r.store_name.toLowerCase().includes(search.toLowerCase()))}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <Text style={styles.item}>{item.store_name + ' Receipt'}</Text>
+            <View style={listStyles.row}>
+              <Text style={listStyles.itemTitle}>
+                {item.store_name}
+                {` • $${item.amount} spent`}
+              </Text>
+              <Text style={listStyles.itemMeta}>
+                {item.receipt_date ? new Date(item.receipt_date).toLocaleDateString() : 'No receipt date'}
+                {item.receipt_date != null ? ` • ${computeDaysAgo(item.receipt_date)}` : ''}
+              </Text>
+            </View>
           )}
         />
       )}
@@ -103,29 +117,29 @@ export default function ViewReceiptsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    marginTop: 15,
-    marginBottom: 10,
-  },
-  searchBar: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 15,
-  },
-  item: {
-    paddingVertical: 15,
-    fontSize: 18,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-  },
-});
+// const receiptStyles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     padding: 20,
+//     backgroundColor: '#fff',
+//   },
+//   title: {
+//     fontSize: 26,
+//     fontWeight: 'bold',
+//     marginTop: 15,
+//     marginBottom: 10,
+//   },
+//   searchBar: {
+//     borderWidth: 1,
+//     borderColor: '#ccc',
+//     padding: 12,
+//     borderRadius: 10,
+//     marginBottom: 15,
+//   },
+//   item: {
+//     paddingVertical: 15,
+//     fontSize: 18,
+//     borderBottomWidth: 1,
+//     borderColor: '#eee',
+//   },
+// });
