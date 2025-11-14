@@ -4,7 +4,7 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import * as ImageManipulator from 'expo-image-manipulator';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { API_URL } from '../config';
 
@@ -13,11 +13,12 @@ type RootStackParamList = {
   Signup: undefined;
   Dashboard: undefined;
   ScanReceipt: undefined;
-  ManuallyAdd: undefined;
+  ManuallyAddScreen: { parsedData?: { merchant: null, amount: string | null, date: string | null } };
   MetadataScreen: { imageUri: string };
 };
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
+type ManuallyAddRouteProp = RouteProp<RootStackParamList, 'ManuallyAddScreen'>;
 
 export default function ScanReceiptScreen() {
   const navigation = useNavigation<NavigationProp>();
@@ -119,9 +120,13 @@ export default function ScanReceiptScreen() {
       if (response.ok) {
         const result = await response.json();
         console.log('Upload successful:', result);
+        console.log('Parsed data:', result.parsedData);
+
         Alert.alert('Success', 'Receipt uploaded successfully!');
         // Navigate to metadata screen with the image URI
-        navigation.navigate('MetadataScreen', { imageUri: capturedImage });
+        //navigation.navigate('MetadataScreen', { imageUri: capturedImage });
+        navigation.navigate('ManuallyAdd', { parsedData: result.parsedData });
+
       } else {
         const errorText = await response.text();
         console.error('Upload failed:', response.status, errorText);

@@ -1,6 +1,8 @@
 // API Configuration - Auto-detects environment
 import { Platform } from 'react-native';
 
+
+
 // Function to get the appropriate API URL based on platform
 const getApiUrl = () => {
   if (__DEV__) {
@@ -11,7 +13,7 @@ const getApiUrl = () => {
     } else {
       // Mobile device - use your computer's IP
       // Update this IP when you change networks
-      return 'http://10.195.80.45:5001';
+      return 'http://192.168.1.20:5001';
     }
   } else {
     // Production mode - replace with your production server URL
