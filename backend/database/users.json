@@ -1,0 +1,129 @@
+[
+  {
+    "id": 1,
+    "username": "fattoush",
+    "email": "m.fattash@yahoo.com",
+    "password": "qqqqqqqq",
+    "receipts": [
+      {
+        "id": 1,
+        "filename": "receipt-1761518796643-866947058.jpg",
+        "originalName": "receipt.jpg",
+        "path": "C:\\Users\\mfatt\\Documents\\Programming_Projects\\test_folder222\\fa25-fa25-team005-thehogriders\\backend\\uploads\\receipt-1761518796643-866947058.jpg",
+        "uploadDate": "2025-10-26T22:46:37.024Z",
+        "ocrData": null,
+        "metadata": {
+          "amount": null,
+          "merchant": null,
+          "date": null,
+          "category": null
+        }
+      },
+      {
+        "id": 2,
+        "filename": "receipt-1761518813647-936637964.jpg",
+        "originalName": "receipt.jpg",
+        "path": "C:\\Users\\mfatt\\Documents\\Programming_Projects\\test_folder222\\fa25-fa25-team005-thehogriders\\backend\\uploads\\receipt-1761518813647-936637964.jpg",
+        "uploadDate": "2025-10-26T22:46:53.949Z",
+        "ocrData": null,
+        "metadata": {
+          "amount": null,
+          "merchant": null,
+          "date": null,
+          "category": null
+        }
+      },
+      {
+        "id": 3,
+        "filename": "receipt-1761521207485-284877954.jpg",
+        "originalName": "receipt.jpg",
+        "path": "C:\\Users\\mfatt\\Documents\\Programming_Projects\\test_folder222\\fa25-fa25-team005-thehogriders\\backend\\uploads\\receipt-1761521207485-284877954.jpg",
+        "uploadDate": "2025-10-26T23:26:47.710Z",
+        "ocrData": null,
+        "metadata": {
+          "amount": null,
+          "merchant": null,
+          "date": null,
+          "category": null
+        }
+      },
+      {
+        "id": 4,
+        "filename": null,
+        "originalName": null,
+        "path": null,
+        "ocrData": null,
+        "uploadDate": "2025-10-29T06:13:08.201Z",
+        "metadata": {
+          "merchant": "Target",
+          "amount": "67.67",
+          "date": "11242004",
+          "category": null
+        }
+      },
+      {
+        "id": 5,
+        "filename": "receipt-1761724256871-355191943.jpg",
+        "originalName": "receipt.jpg",
+        "path": "C:\\Users\\mfatt\\Documents\\Programming_Projects\\test_folder222\\fa25-fa25-team005-thehogriders\\backend\\uploads\\receipt-1761724256871-355191943.jpg",
+        "uploadDate": "2025-10-29T07:50:57.159Z",
+        "ocrData": null,
+        "metadata": {
+          "merchant": null,
+          "amount": null,
+          "date": null,
+          "category": null
+        }
+      },
+      {
+        "id": 6,
+        "filename": "receipt-1761724436488-550635074.jpg",
+        "originalName": "receipt.jpg",
+        "path": "C:\\Users\\mfatt\\Documents\\Programming_Projects\\test_folder222\\fa25-fa25-team005-thehogriders\\backend\\uploads\\receipt-1761724436488-550635074.jpg",
+        "uploadDate": "2025-10-29T07:53:56.753Z",
+        "ocrData": null,
+        "metadata": {
+          "merchant": null,
+          "amount": null,
+          "date": null,
+          "category": null
+        }
+      },
+      {
+        "id": 7,
+        "filename": "receipt-1761847016949-191547312.jpg",
+        "originalName": "receipt.jpg",
+        "path": "C:\\Users\\mfatt\\Documents\\Programming_Projects\\test_folder222\\fa25-fa25-team005-thehogriders\\backend\\uploads\\receipt-1761847016949-191547312.jpg",
+        "uploadDate": "2025-10-30T17:56:57.131Z",
+        "ocrData": null,
+        "metadata": {
+          "merchant": null,
+          "amount": null,
+          "date": null,
+          "category": null
+        }
+      },
+      {
+        "id": 8,
+        "filename": null,
+        "originalName": null,
+        "path": null,
+        "ocrData": null,
+        "uploadDate": "2025-10-30T22:16:07.725Z",
+        "metadata": {
+          "merchant": "Walmart",
+          "amount": "67.32",
+          "date": "03012023",
+          "category": null
+        }
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "username": "jerry",
+    "email": "daniel@gmail.com",
+    "password": "qqqqqqqqqq",
+    "receipts": []
+  }
+]

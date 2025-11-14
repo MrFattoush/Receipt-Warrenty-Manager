@@ -1,45 +1,42 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import LoginScreen from './screens/LoginScreen';
+import SignupScreen from './screens/SignupScreen';
+import DashboardScreen from './screens/DashboardScreen';
+import ScanReceiptScreen from './screens/ScanReceiptScreen';
+import ManuallyAddScreen from './screens/ManuallyAddScreen';
+import ViewReceiptsScreen from './screens/ViewReceiptsScreen';
+import ViewWarrantiesScreen from './screens/ViewWarrantiesScreen';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+const Stack = createStackNavigator();
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-
+export default function App() {
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Signup" component={SignupScreen} />
+          <Stack.Screen 
+            name="Dashboard" 
+            component={DashboardScreen}
+            options={{ 
+              headerLeft: () => null,  // Remove back button
+              gestureEnabled: false     // Disable swipe-back gesture
+            }}
+          />
+          <Stack.Screen name="ScanReceipt" component={ScanReceiptScreen} />
+          <Stack.Screen name="ManuallyAdd" component={ManuallyAddScreen} />
+
+          <Stack.Screen name="ViewReceipts" component={ViewReceiptsScreen} />
+          <Stack.Screen name="ViewWarranties" component={ViewWarrantiesScreen} />
+          
+        </Stack.Navigator>
+      </NavigationContainer>
     </SafeAreaProvider>
   );
 }
 
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
 
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
-
-export default App;
