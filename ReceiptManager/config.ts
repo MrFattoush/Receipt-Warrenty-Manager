@@ -1,6 +1,8 @@
 // API Configuration - Auto-detects environment
 import { Platform } from 'react-native';
 
+
+
 // Function to get the appropriate API URL based on platform
 const getApiUrl = () => {
   if (__DEV__) {
