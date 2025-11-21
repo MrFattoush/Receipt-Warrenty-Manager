@@ -12,6 +12,12 @@ const app = express();        // gives an express app instance
 const bcrypt = require('bcrypt'); 
 const Tesseract = require('tesseract.js');
 const sharp = require('sharp');
+// Gemini API for better parse extraction
+const {GoogleGenerativeAI} = require('@google/generative-ai');
+const { GEMINI_API_KEY } = require('./env.js');
+// Gemini AI setup
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({model: "gemini-2.5-flash"});
 
 // multer for file uploads
 const storage = multer.diskStorage({                          // creates a storage config for multer
@@ -387,41 +393,78 @@ async function preprocessImage(inputPath, outputPath){
     }
 }
 
-// Parse Receipt 
-function parseText(ocrText) {
-    const result = {
-        merchant: null,
-        amount: null,
-        date: null
-    };
+// Parse Receipt - ALGORITHM 
+// function parseText(ocrText) {
+//     const result = {
+//         merchant: null,
+//         amount: null,
+//         date: null
+//     };
 
-    console.log('Parsing OCR text...');
+//     console.log('Parsing OCR text...');
 
-    // Extract amount - find all prices near payment keywords and pick the largest
-    const amountRegex = /(?:Payment|Total|Amount Due|Balance|Grand Total|Due)[\s,:]*\$(\d+\.\d{2})/gi;
-    const matches = ocrText.matchAll(amountRegex);
-    let maxAmount = 0;
+//     // Extract amount - find all prices near payment keywords and pick the largest
+//     const amountRegex = /(?:Payment|Total|Amount Due|Balance|Grand Total|Due)[\s,:]*\$(\d+\.\d{2})/gi;
+//     const matches = ocrText.matchAll(amountRegex);
+//     let maxAmount = 0;
 
-    for (const match of matches) {
-        const amount = parseFloat(match[1]);
-        if (amount > maxAmount) {
-            maxAmount = amount;
+//     for (const match of matches) {
+//         const amount = parseFloat(match[1]);
+//         if (amount > maxAmount) {
+//             maxAmount = amount;
+//         }
+//     }
+
+//     if (maxAmount > 0) {
+//         result.amount = maxAmount.toFixed(2);
+//     }
+
+//     const dateMatch = ocrText.match(/(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+//     if (dateMatch) {
+//         result.date = `${dateMatch[1]}/${dateMatch[2]}/${dateMatch[3]}`;
+//     }
+
+
+//     return result;
+
+// }
+
+// NEW PARSING WITH GEMINI!
+async function parseReceiptWithAI(ocrText) {
+    try {
+        const prompt = `You are a receipt parser. Extract the following information from this receipt text:
+        - merchant (service name)
+        - amount (total amount paid, as a number)
+        - date (in MM/DD/YYYY format)
+        
+        Receipt text:
+        ${ocrText}
+        
+        Respond ONLY with valid JSON in this exact format:
+        {"merchant": "service name", "amount": "0.00", "date": "MM/DD/YYYY"}`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+
+        let cleanText = text.trim();
+        // Find the JSON object between curly braces
+        const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            cleanText = jsonMatch[0];
+        }
+        
+        // Parse the JSON response
+        const parsedData = JSON.parse(cleanText);
+
+        // Parse tge JSON response
+        //const parsedData = JSON.parse(text);
+        return parsedData;
+    } catch (error) {
+        console.error('AI parsing error:', error);
+        return { merchant: null, amount: null, date: null };
         }
     }
-
-    if (maxAmount > 0) {
-        result.amount = maxAmount.toFixed(2);
-    }
-
-    const dateMatch = ocrText.match(/(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
-    if (dateMatch) {
-        result.date = `${dateMatch[1]}/${dateMatch[2]}/${dateMatch[3]}`;
-    }
-
-
-    return result;
-
-}
 
 
 
@@ -455,7 +498,8 @@ app.post('/parse-receipt', upload.single('image'), async function(req, res){
 
     console.log('OCR Result:', result.data.text);
 
-    const parsedData = parseText(result.data.text);
+    //const parsedData = parseText(result.data.text);
+    const parsedData = await parseReceiptWithAI(result.data.text);
     console.log('Parsed Data:', parsedData);
 
     res.json({

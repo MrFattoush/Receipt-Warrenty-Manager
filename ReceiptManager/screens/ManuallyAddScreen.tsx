@@ -4,7 +4,7 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { API_URL } from '../config';
 type RootStackParamList = {
-  ManuallyAddScreen: { parsedData?: { merchant: null, amount: string | null, date: string | null } };
+  ManuallyAddScreen: { parsedData?: { merchant: string | null, amount: string | null, date: string | null } };
   Dashboard: undefined;
 };
 type NavigationProp = StackNavigationProp<RootStackParamList>;
@@ -16,7 +16,7 @@ export default function ManuallyAddScreen() {
   const parsedData = route.params?.parsedData;  // get the parsed data
   const navigation = useNavigation<NavigationProp>();
 
-  const [merchant, setMerchant] = useState('');
+  const [merchant, setMerchant] = useState(parsedData?.merchant || '');
   const [totalAmount, setTotalAmount] = useState(parsedData?.amount || '');  
   const [purchaseDate, setPurchaseDate] = useState(parsedData?.date || '');
   const [warrantyItem, setWarrantyItem] = useState('');
