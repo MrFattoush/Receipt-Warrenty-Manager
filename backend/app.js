@@ -573,8 +573,6 @@ app.get('/get-receipts', async (req, res) => {
         .from('receipts')
         .select('*')
         .eq('user_id', req.session.userId)
-        .is('warranty_item', null)
-        .is('warranty_exp_date', null)
         .order('receipt_date', { ascending: false });
 
     if (error) {
@@ -634,10 +632,137 @@ app.get('/get-warranties', async (req, res) => {
   }
 });
 
+app.delete("/delete-warranty/:id", async (req, res) => {
+ const id = req.params.id;
+
+
+ try {
+   const { error } = await supabase
+     .from("receipts")
+     .update({
+       warranty_item: null,
+       warranty_exp_date: null
+     })
+     .eq("id", id);
+
+
+   if (error) throw error;
+
+
+   return res.json({ success: true });
+ } catch (err) {
+   console.error("Delete warranty error:", err);
+   return res.status(500).json({ success: false, message: "Failed to delete warranty" });
+ }
+});
+
+
+app.delete("/delete-receipt", async (req, res) => {
+  const { id } = req.query;
+
+  try {
+    // delete warranty first (if exists)
+    await supabase
+      .from("warranties")
+      .delete()
+      .eq("receipt_id", id);
+
+    // now delete receipt
+    await supabase
+      .from("receipts")
+      .delete()
+      .eq("id", id);
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// --- UPDATE RECEIPT ---
+app.put('/update-receipt/:id', async (req, res) => {
+    const receiptId = req.params.id;
+    let { store_name, amount, receipt_date, warranty_item, warranty_exp_date } = req.body;
+
+    if (!req.session || !req.session.userId) {
+        return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
+
+    if (!store_name || !amount || !receipt_date) {
+        return res.status(400).json({ success: false, message: 'store_name, amount, and receipt_date are required' });
+    }
+
+    // Helper: convert MM/DD/YYYY to YYYY-MM-DD
+    const formatDate = (dateStr) => {
+        if (!dateStr) return null;
+        if (dateStr.includes('/')) {
+            // MM/DD/YYYY -> YYYY-MM-DD
+            const [month, day, year] = dateStr.split('/');
+            return `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`;
+        } else if (dateStr.includes('-')) {
+            // Already YYYY-MM-DD
+            return dateStr;
+        } else {
+            throw new Error('Invalid date format');
+        }
+    };
+
+    try {
+        receipt_date = formatDate(receipt_date);
+        if (warranty_exp_date) {
+            warranty_exp_date = formatDate(warranty_exp_date);
+        }
+    } catch (err) {
+        return res.status(400).json({ success: false, message: 'Invalid date format' });
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('receipts')
+            .update({
+                store_name,
+                amount: parseFloat(amount),
+                receipt_date,
+                warranty_item: warranty_item || null,
+                warranty_exp_date: warranty_exp_date || null,
+            })
+            .eq('id', receiptId)
+            .eq('user_id', req.session.userId)
+            .select();
+
+        if (error) throw error;
+
+        res.json({ success: true, message: 'Receipt updated successfully', receipt: data[0] });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+
+app.get('/get-receipt/:id', async (req, res) => {
+  const receiptId = req.params.id;
+
+  if (!req.session?.userId) return res.status(401).json({ success: false, message: 'Not authenticated' });
+
+  const { data, error } = await supabase
+    .from('receipts')
+    .select('*')
+    .eq('id', receiptId)
+    .eq('user_id', req.session.userId)
+    .single();
+
+  if (error) return res.status(400).json({ success: false, message: 'Failed to load receipt' });
+
+  res.json({ success: true, receipt: data });
+});
+
+
+
 // Serve uploaded images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 //module.exports = app;
 
-const PORT = 5000;
+const PORT = 5001;
 app.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));
