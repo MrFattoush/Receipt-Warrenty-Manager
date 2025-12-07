@@ -51,6 +51,25 @@ export default function ViewWarrantiesScreen() {
     }
   };
 
+  const deleteWarranty = async (id: number) => {
+   try {
+     const res = await fetch(`${API_URL}/delete-warranty/${id}`, {
+       method: "DELETE",
+       credentials: "include",
+     });
+
+
+     const json = await res.json();
+     if (!json.success) throw new Error("Failed to delete warranty");
+
+
+     await fetchWarranties();  // refresh list
+   } catch (err) {
+     console.error("Delete warranty error:", err);
+   }
+ };
+
+
   useEffect(() => {
     fetchWarranties();
   }, []);
@@ -93,6 +112,13 @@ export default function ViewWarrantiesScreen() {
                 {item.days_left != null ? ` • ${item.days_left >= 0 ? `${item.days_left} days left` : 'Expired'}` : ''}
               </Text>
               {item.expiringSoon ? <Text style={listStyles.warn}>Expiring soon!</Text> : null}
+               {/* --- DELETE BUTTON --- */}
+             <Button
+               title="Delete Warranty"
+               color="#d9534f"
+               onPress={() => deleteWarranty(item.id)}
+             />
+             {/* -------------------------------- */}
             </View>
           )}
           ListEmptyComponent={<Text>No warranties found</Text>}

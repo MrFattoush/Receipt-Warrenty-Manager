@@ -29,6 +29,7 @@ export default function ScanReceiptScreen() {
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
+    requestPermission();
     requestMediaLibraryPermission();
   }, []);
 

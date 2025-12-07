@@ -8,6 +8,7 @@ import listStyles from '../styles';
 type RootStackParamList = {
   Dashboard: undefined;
   ViewReceipts: undefined;
+  UpdateReceipt: { id: string };
 };
 
 type ReceiptRow = {
@@ -60,6 +61,25 @@ export default function ViewReceiptsScreen() {
     }
   };
 
+  const deleteReceipt = async (id: string) => {
+  try {
+    const res = await fetch(`${API_URL}/delete-receipt?id=${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message || "Failed to delete receipt");
+
+    // Remove the deleted receipt locally
+    setReceipts(prev => prev.filter(r => r.id !== id));
+  } catch (err: any) {
+    console.error("Delete error:", err);
+    setError(err.message);
+  }
+};
+
+
   useEffect(() => {
     console.log("UseEffect running")
     fetchReceipts();
@@ -109,7 +129,19 @@ export default function ViewReceiptsScreen() {
                 {item.receipt_date ? new Date(item.receipt_date).toLocaleDateString() : 'No receipt date'}
                 {item.receipt_date != null ? ` • ${computeDaysAgo(item.receipt_date)}` : ''}
               </Text>
+              <Button
+                title="Update"
+                color="#ffaa00"
+                onPress={() => navigation.navigate("UpdateReceipt", { id: item.id })}
+              />
+              {/* Delete Button */}
+              <Button
+                title="Delete"
+                color="#d11"
+                onPress={() => deleteReceipt(item.id)}
+              />
             </View>
+            
           )}
         />
       )}
