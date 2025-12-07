@@ -12,6 +12,7 @@ const app = express();        // gives an express app instance
 const bcrypt = require('bcrypt'); 
 const Tesseract = require('tesseract.js');
 const sharp = require('sharp');
+const heicConvert = require('heic-convert');
 // Gemini API for better parse extraction
 const {GoogleGenerativeAI} = require('@google/generative-ai');
 const { GEMINI_API_KEY } = require('./env.js');
@@ -377,6 +378,26 @@ app.post('/upload-receipt', upload.single('image'), function(req, res) {
     });
 });
 
+// function to convert HEIC to JPEG
+async function convertHeicToJpeg(inputPath) {
+    try {
+        const inputBuffer = fs.readFileSync(inputPath);
+        const outputBuffer = await heicConvert({
+            buffer: inputBuffer,
+            format: 'JPEG',
+            quality: 0.9
+        });
+        
+        const jpegPath = inputPath.replace(/\.(heic|heif)$/i, '.jpg').replace('.jpg', '_converted.jpg');
+        fs.writeFileSync(jpegPath, outputBuffer);
+        console.log('HEIC converted to JPEG successfully');
+        return jpegPath;
+    } catch (error) {
+        console.error('Error converting HEIC:', error);
+        throw error;
+    }
+}
+
 // function for preprocessiong image to better OCR parsing accuracy
 async function preprocessImage(inputPath, outputPath){
     try {
@@ -485,8 +506,20 @@ app.post('/parse-receipt', upload.single('image'), async function(req, res){
         return res.status(404).json({success: false, message: 'Could not find file'});
     }
 
-    const processedPath = req.file.path.replace('.jpg', '_processed.jpg');
-    await preprocessImage(req.file.path, processedPath);
+    // Check if the file is HEIC/HEIF format and convert to JPEG
+    let imagePath = req.file.path;
+    const isHeic = req.file.mimetype === 'image/heic' || 
+                   req.file.mimetype === 'image/heif' ||
+                   req.file.originalname.toLowerCase().endsWith('.heic') ||
+                   req.file.originalname.toLowerCase().endsWith('.heif');
+    
+    if (isHeic) {
+        console.log('HEIC file detected, converting to JPEG...');
+        imagePath = await convertHeicToJpeg(req.file.path);
+    }
+
+    const processedPath = imagePath.replace('.jpg', '_processed.jpg');
+    await preprocessImage(imagePath, processedPath);
     
 
     const result = await Tesseract.recognize(

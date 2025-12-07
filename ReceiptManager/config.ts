@@ -13,7 +13,7 @@ const getApiUrl = () => {
     } else {
       // Mobile device - use your computer's IP
       // Update this IP when you change networks
-      return 'http://10.0.0.44:5000';
+      return 'http://192.168.1.20:5000';
     }
   } else {
     // Production mode - replace with your production server URL
