@@ -25,18 +25,18 @@ Our app uses **AI (Google Gemini)** to parse and automatically add receipt data 
 
 | Feature | Description |
 |---------|-------------|
-| 📸 **Receipt Capture** | Take a photo of a receipt OR upload one from your gallery |
-| 🤖 **AI-Powered Extraction** | Automatically extract key information (merchant, date, amount) using Google Gemini |
-| 💾 **Cloud Storage** | Store parsed data and receipt images securely in Supabase database |
-| 📊 **Dashboard View** | View past receipts, warranties, and purchase metadata |
-| ✏️ **Manual Management** | Edit, delete existing receipts/warranties, or add new ones manually |
-| 🔍 **Smart Filtering** | Filter receipts/warranties by merchant name |
+| **Receipt Capture** | Take a photo of a receipt OR upload one from your gallery |
+| **AI-Powered Extraction** | Automatically extract key information (merchant, date, amount) using Google Gemini |
+| **Cloud Storage** | Store parsed data and receipt images securely in Supabase database |
+| **Dashboard View** | View past receipts, warranties, and purchase metadata |
+| **Manual Management** | Edit, delete existing receipts/warranties, or add new ones manually |
+| **Smart Filtering** | Filter receipts/warranties by merchant name |
 
 ---
 
-## 🏗️ Technical Architecture
+## Technical Architecture
 
-![Architecture Diagram](https://docs.google.com/presentation/d/1lLQHPOK6Knsd1nwj8FqwB9Os5-QvV73Twy9-OjLyd-E/edit?slide=id.g3ae57488fd5_0_30#slide=id.g3ae57488fd5_0_30)
+<img width="769" height="351" alt="Screenshot 2025-12-07 223200" src="https://github.com/user-attachments/assets/bc309742-6f7a-4e59-94dd-d13483df4bae" />
 
 ### Frontend - React Native (Expo)
 
