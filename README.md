@@ -9,11 +9,11 @@
 
 ### The Problem
 
-People commonly lose their receipts or forget to keep track of warranty deadlines. Paper receipts are easy to throw away, misplace, or ignore until it's too late—often resulting in missed return windows or expired warranties.
+People commonly lose their receipts or forget to keep track of warranty deadlines. Paper receipts are easy to throw away, misplace, or ignore until it's too late; often resulting in missed return windows or expired warranties.
 
 ### Our Solution
 
-The **Receipt Manager App** digitizes receipts, extracts key details automatically, and keeps warranty reminders organized—all in one place.
+The **Receipt Manager App** digitizes receipts, extracts key details automatically, and keeps warranty reminders organized all in one place.
 
 ### What Makes Us Different
 
@@ -38,7 +38,7 @@ Our app uses **AI (Google Gemini)** to parse and automatically add receipt data 
 
 ![Architecture Diagram](https://docs.google.com/presentation/d/1lLQHPOK6Knsd1nwj8FqwB9Os5-QvV73Twy9-OjLyd-E/edit?slide=id.g3ae57488fd5_0_30#slide=id.g3ae57488fd5_0_30)
 
-### Frontend — React Native (Expo)
+### Frontend - React Native (Expo)
 
 **Role in the Application:**
 - Provides the user interface for scanning receipts, viewing history, editing metadata, and managing warranties
@@ -57,7 +57,7 @@ Our app uses **AI (Google Gemini)** to parse and automatically add receipt data 
 
 ---
 
-### Backend — Node.js + Express
+### Backend - Node.js + Express
 
 **Role in the Application:**
 - Handles all business logic: authentication, receipt processing, metadata storage, and notifications
@@ -129,8 +129,8 @@ Our app uses **AI (Google Gemini)** to parse and automatically add receipt data 
 
 | Component | Lead | Contributors |
 |-----------|------|--------------|
-| Frontend (React Native) | Kai & Jason | — |
-| Backend (Node.js + Express) | Mo & Dennis | — |
+| Frontend (React Native) | Kai & Jason | - |
+| Backend (Node.js + Express) | Mo & Dennis | - |
 | OCR Processing | Mo (Lead) | Dennis & Kai (Testing), Jason (Review) |
 | PostgreSQL Database (Supabase) | Dennis (Lead & Setup) | Mo (Schema Design & Queries) |
 
