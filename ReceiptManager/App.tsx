@@ -9,6 +9,7 @@ import ScanReceiptScreen from './screens/ScanReceiptScreen';
 import ManuallyAddScreen from './screens/ManuallyAddScreen';
 import ViewReceiptsScreen from './screens/ViewReceiptsScreen';
 import ViewWarrantiesScreen from './screens/ViewWarrantiesScreen';
+import UpdateReceiptScreen from './screens/UpdateReceiptScreen';
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,8 @@ export default function App() {
         <Stack.Navigator initialRouteName="Login">
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Signup" component={SignupScreen} />
+          <Stack.Screen name="UpdateReceipt" component={UpdateReceiptScreen} />
+
           <Stack.Screen 
             name="Dashboard" 
             component={DashboardScreen}
