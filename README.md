@@ -1,7 +1,140 @@
 
+# Receipt & Warranty Manager App
 
+> A mobile application that helps users save, track, and manage receipts and warranty information using AI-powered OCR.
 
+---
 
+## 📋 Project Summary
+
+### The Problem
+
+People commonly lose their receipts or forget to keep track of warranty deadlines. Paper receipts are easy to throw away, misplace, or ignore until it's too late; often resulting in missed return windows or expired warranties.
+
+### Our Solution
+
+The **Receipt Manager App** digitizes receipts, extracts key details automatically, and keeps warranty reminders organized all in one place.
+
+### What Makes Us Different
+
+Our app uses **AI (Google Gemini)** to parse and automatically add receipt data into the user's account, providing superior accuracy for merchant identification compared to traditional OCR-only solutions.
+
+---
+
+## ✨ Key Features
+
+| Feature | Description |
+|---------|-------------|
+| **Receipt Capture** | Take a photo of a receipt OR upload one from your gallery |
+| **AI-Powered Extraction** | Automatically extract key information (merchant, date, amount) using Google Gemini |
+| **Cloud Storage** | Store parsed data and receipt images securely in Supabase database |
+| **Dashboard View** | View past receipts, warranties, and purchase metadata |
+| **Manual Management** | Edit, delete existing receipts/warranties, or add new ones manually |
+| **Smart Filtering** | Filter receipts/warranties by merchant name |
+
+---
+
+## Technical Architecture
+
+<img width="680" height="320" alt="image" src="https://github.com/user-attachments/assets/229fa5a5-3f23-4e19-a356-e3fdee1b2470" />
+
+### Frontend - React Native (Expo)
+
+**Role in the Application:**
+- Provides the user interface for scanning receipts, viewing history, editing metadata, and managing warranties
+- Handles user interactions like login, upload, search, delete, and notifications
+
+**Interactions with Other Components:**
+- Sends images and form data to the backend via REST API
+- Receives authenticated session tokens and receipt/warranty data from backend
+- Uses OCR output (from backend) to auto-fill metadata fields
+
+**Languages & Libraries:**
+- React Native (TypeScript/JavaScript)
+- Expo (mobile tooling)
+- React Navigation
+- Native device modules (camera, gallery, notifications)
+
+---
+
+### Backend - Node.js + Express
+
+**Role in the Application:**
+- Handles all business logic: authentication, receipt processing, metadata storage, and notifications
+- Exposes REST API endpoints used by the mobile app
+- Validates credentials, parses OCR results, and stores everything in the database
+
+**Interactions with Other Components:**
+- Communicates with PostgreSQL (Supabase) to retrieve and save user and receipt data
+- Receives image uploads and processes OCR requests
+- Sends results (receipts, warranty items, metadata) back to frontend
+
+**Languages & Libraries:**
+- Node.js (JavaScript/TypeScript)
+- Express (REST API framework)
+- Multer / FormData for image upload
+- Bcrypt for password hashing
+- Google Gemini API (for enhanced merchant identification accuracy)
+
+---
+
+### OCR Processing Component
+
+**Role in the Application:**
+- Extracts text from uploaded receipt images
+- Identifies key fields like store name, date, cost, and warranty expiration
+- Supplies structured metadata that can be saved into the database
+
+**Interactions with Other Components:**
+- Receives receipt images from frontend (through backend)
+- Outputs parsed text to backend logic for clean formatting
+- Backend sends parsed text back to frontend for user confirmation/editing
+
+**Languages & Libraries:**
+- Tesseract.js
+- Google Gemini API
+- Node.js
+- Text parsing utilities (Regex, heic-convert, Sharp)
+
+---
+
+### PostgreSQL Database (Supabase)
+
+**Role in the Application:**
+- Stores all user accounts, receipts, warranty metadata, OCR results, and reminders
+- Ensures data persistence, relational linking, and secure retrieval
+
+**Interactions with Other Components:**
+- Receives insert/select/update/delete commands from backend
+- Sends stored receipt metadata back to backend for dashboard and search features
+- Works with authentication logic to validate login credentials
+
+**Languages & Libraries:**
+- PostgreSQL
+- Supabase (hosted DB + API tools)
+- SQL queries written through Node.js (`pg` package)
+
+---
+
+## 👥 Team Members & Roles
+
+| Team Member | Primary Role | Responsibilities |
+|-------------|--------------|------------------|
+| **Kai** | Frontend Developer | React Native UI development, OCR testing |
+| **Jason** | Frontend Developer | React Native UI development, Code review |
+| **Mo** | Backend Developer | Node.js/Express API, OCR processing (Lead), Database schema design & queries |
+| **Dennis** | Backend Developer | Node.js/Express API, OCR testing, Database setup (Lead) |
+
+### Component Ownership
+
+| Component | Lead | Contributors |
+|-----------|------|--------------|
+| Frontend (React Native) | Kai & Jason | - |
+| Backend (Node.js + Express) | Mo & Dennis | - |
+| OCR Processing | Mo (Lead) | Dennis & Kai (Testing), Jason (Review) |
+| PostgreSQL Database (Supabase) | Dennis (Lead & Setup) | Mo (Schema Design & Queries) |
+
+---
 
 # ENVIRONMENT
 
