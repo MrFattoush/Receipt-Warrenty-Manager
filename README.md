@@ -36,7 +36,7 @@ Our app uses **AI (Google Gemini)** to parse and automatically add receipt data 
 
 ## Technical Architecture
 
-<img width="769" height="351" alt="Screenshot 2025-12-07 223200" src="https://github.com/user-attachments/assets/bc309742-6f7a-4e59-94dd-d13483df4bae" />
+<img width="680" height="320" alt="image" src="https://github.com/user-attachments/assets/229fa5a5-3f23-4e19-a356-e3fdee1b2470" />
 
 ### Frontend - React Native (Expo)
 
